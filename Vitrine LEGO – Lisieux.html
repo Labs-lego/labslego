@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vitrine LEGO – Lisieux</title>
+<style>
+:root{--bg:#fff8e1;--card:#fff;--text:#1d1d1f;--muted:#6b6b70;--accent:#e3000b;--line:#ecdfb5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17171a;--card:#232328;--text:#f4f4f5;--muted:#a0a0a8;--line:#34343b}}
+:root[data-theme="dark"]{--bg:#17171a;--card:#232328;--text:#f4f4f5;--muted:#a0a0a8;--line:#34343b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+header{text-align:center;margin-bottom:18px}
+h1{margin:0 0 4px;font-size:1.7rem}
+.sub{color:var(--muted);margin:0}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0 0}
+.badge{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:.85rem}
+.filters{display:flex;gap:8px;margin:18px 0;overflow-x:auto}
+.filters button{border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:99px;padding:8px 14px;font-size:.9rem;white-space:nowrap}
+.filters button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.grid{display:grid;gap:12px}
+.card{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.brick{flex:0 0 64px;height:64px;border-radius:12px;display:grid;place-items:center;font-size:1.8rem;color:#fff;box-shadow:inset 0 -5px 0 rgba(0,0,0,.18)}
+.info{flex:1;min-width:0}
+.info h2{margin:0;font-size:1.05rem}
+.ref{color:var(--muted);font-size:.85rem}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.tag{font-size:.75rem;background:var(--bg);border-radius:6px;padding:2px 8px}
+.btn{display:inline-block;background:#229ed9;color:#fff;text-decoration:none;border-radius:10px;padding:9px 12px;font-size:.85rem;font-weight:600;white-space:nowrap}
+.empty{text-align:center;color:var(--muted);padding:30px 0}
+.note{margin-top:22px;background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:14px;font-size:.9rem;color:var(--muted)}
+.cta{display:block;text-align:center;margin-top:18px;padding:14px;font-size:1rem;border-radius:14px}
+@media (max-width:420px){.card{flex-wrap:wrap}.btn{width:100%;text-align:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🧱 Vitrine LEGO</h1>
+  <p class="sub">Neuf scellé · Remise en main propre · Secteur Lisieux</p>
+  <div class="badges"><span class="badge">📦 Neuf scellé</span><span class="badge">🤝 Main propre</span><span class="badge">📍 Lisieux</span></div>
+</header>
+
+<div class="filters" id="filters"></div>
+<div class="grid" id="grid"></div>
+
+<a class="btn cta" id="cta" target="_blank" rel="noopener">📩 Me contacter sur Telegram</a>
+
+<div class="note">
+  💬 Pour connaître les stocks, les références disponibles ou obtenir des photos, contacte-moi directement sur Telegram.<br><br>
+  ℹ️ Si un set n'est plus en vitrine, c'est qu'il est vendu. Parfois il ne reste qu'un seul exemplaire.
+</div>
+</div>
+
+<script>
+// ====== À MODIFIER ======
+var TELEGRAM = "TON_PSEUDO_TELEGRAM"; // sans le @
+// Pour retirer un set vendu : supprime sa ligne (ou mets dispo:false)
+var PRODUITS = [
+  {ref:"10707", nom:"Boîte rouge",        emoji:"🔴", couleur:"#d01012", etat:"Neuf scellé", info:"Tarifs et disponibilités sur demande", dispo:true},
+  {ref:"43244", nom:"Collection Frozen",  emoji:"🔵", couleur:"#1e7fd6", etat:"Neuf scellé", info:"Tarifs et disponibilités sur demande", dispo:true},
+  {ref:"11023", nom:"Picot vert",         emoji:"🟢", couleur:"#2e9e44", etat:"Neuf scellé", info:"Plusieurs boîtes disponibles", dispo:true},
+  {ref:"60366", nom:"Édition collection hiver", emoji:"🟡", couleur:"#f2b705", etat:"Neuf scellé", info:"Prix et renseignements sur Telegram", dispo:true}
+];
+// ========================
+
+var filtre = "Tous";
+var base = "https://t.me/" + TELEGRAM;
+document.getElementById("cta").href = base;
+
+function render(){
+  var etats = ["Tous"];
+  PRODUITS.forEach(function(p){ if(p.dispo && etats.indexOf(p.etat)<0) etats.push(p.etat); });
+  var f = document.getElementById("filters");
+  f.innerHTML = "";
+  if(etats.length > 2){
+    etats.forEach(function(e){
+      var b = document.createElement("button");
+      b.textContent = e; b.className = e===filtre ? "on" : "";
+      b.onclick = function(){ filtre = e; render(); };
+      f.appendChild(b);
+    });
+  }
+  var g = document.getElementById("grid");
+  var liste = PRODUITS.filter(function(p){ return p.dispo && (filtre==="Tous" || p.etat===filtre); });
+  if(!liste.length){ g.innerHTML = '<div class="empty">Plus rien en vitrine pour le moment 🙌<br>Écris-moi pour les prochains arrivages !</div>'; return; }
+  g.innerHTML = liste.map(function(p){
+    return '<div class="card">'+
+      '<div class="brick" style="background:'+p.couleur+'">🧱</div>'+
+      '<div class="info"><h2>'+p.emoji+' '+p.nom+'</h2>'+
+      '<div class="ref">LEGO '+p.ref+'</div>'+
+      '<div class="tags"><span class="tag">'+p.etat+'</span><span class="tag">'+p.info+'</span></div></div>'+
+      '<a class="btn" target="_blank" rel="noopener" href="'+base+'">📩 Telegram</a></div>';
+  }).join("");
+}
+render();
+</script>
+</body>
+</html>
