@@ -51,6 +51,8 @@
   .card h2 { margin:0; font-size:1.05rem; }
   .ref { color:var(--muted); font-size:.85rem; }
   .tag { display:inline-block; background:var(--tag); border-radius:8px; padding:3px 8px; font-size:.78rem; }
+  .old { color:var(--muted); text-decoration:line-through; font-weight:400; }
+  .eco { display:inline-block; background:#d9332b; color:#fff; border-radius:8px; padding:3px 8px; font-size:.78rem; font-weight:700; }
   button { grid-column:1 / -1; margin-top:8px; border:0; border-radius:10px; background:var(--blue); color:#fff; font-size:1rem; font-weight:600; padding:12px; cursor:pointer; }
   button:active { opacity:.85; }
   button:focus-visible { outline:3px solid #3a1458; outline-offset:2px; }
@@ -190,13 +192,22 @@
   if (tg) { tg.ready(); tg.expand(); }
 
   const SETS = [
-    { icon:"🔴", color:"#d9332b", name:"Boîte news",               ref:"LEGO 00125",  prix:35, { qte:2, prix:33.5 }, info:"Boîte de tabac news · lots x3 · 33,50 € la boîte dès 2" },
-    { icon:"🔵", color:"#2a6fd0", name:"Collection -Hash",        ref:"LEGO farms",  prix:5, info:"5 a 18" },
-    { icon:"🟢", color:"#2f9e4f", name:"Weed. vert",               ref:"LEGO gandja", prix:8, info:"a partir de 8" },
-    { icon:"⚪️", color:"#f2b21c", name:"Édition skieur hiver", ref:"LEGO neige", prix:60, info:"60-70" }
+    { icon:"🔴", color:"#d9332b", name:"Boîte news",               ref:"LEGO 10707", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte de figurines · lots rouges · 33,50 € la boîte dès 2" },
+    { icon:"🔵", color:"#2a6fd0", name:"Collection Frozen",        ref:"LEGO 43244", prix:null, info:"4 à 18 € selon le format · à négocier en messagerie" },
+    { icon:"🟢", color:"#2f9e4f", name:"Picot vert",               ref:"LEGO 11023", prix:null, info:"8 à 15 € selon le format · à négocier en messagerie" },
+    // Pour l'étiquette d'économie : renseigne prix:50 et marche:[60, 70] (prix d'occasion) sur le set voulu
+    { icon:"🟡", color:"#f2b21c", name:"Édition collection hiver", ref:"LEGO 60366", prix:null, info:"60 à 70 € · prix exact sur Telegram" }
   ];
   const eur = n => n.toFixed(2).replace('.', ',') + ' €';
   const qty = SETS.map(() => 0);
+  // Étiquette d'économie vs prix d'occasion (rien si prix ou marche manquent, ou si pas moins cher)
+  function economie(s) {
+    if (s.prix == null || !s.marche) return "";
+    const a = Math.round(s.marche[0] - s.prix), b = Math.round(s.marche[1] - s.prix);
+    if (b <= 0) return "";
+    const txt = a > 0 && a !== b ? "-" + a + " à -" + b + " €" : "-" + b + " €";
+    return '<span class="eco">💸 ' + txt + ' vs occasion</span> ';
+  }
   const $ = id => document.getElementById(id);
   const store = { get:k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
                   set:(k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
@@ -221,8 +232,8 @@
     el.innerHTML =
       '<div class="thumb" style="background:' + s.color + '">🧱</div>' +
       '<h2>' + s.icon + ' ' + s.name + '</h2>' +
-      '<div class="ref">' + s.ref + (s.prix != null ? ' · <b>' + eur(s.prix) + '</b>' : '') + '</div>' +
-      '<div><span class="tag">Neuf scellé</span> <span class="tag">⏳ Quantité limitée</span> <span class="tag">' + s.info + '</span></div>' +
+      '<div class="ref">' + s.ref + (s.prix != null ? ' · <b>' + eur(s.prix) + '</b>' + (s.marche ? ' <span class="old">' + s.marche[0] + '–' + s.marche[1] + ' €</span>' : '') : '') + '</div>' +
+      '<div><span class="tag">Neuf scellé</span> <span class="tag">⏳ Quantité limitée</span> ' + economie(s) + '<span class="tag">' + s.info + '</span></div>' +
       '<div class="qty"><button data-i="' + i + '" data-d="-1" aria-label="Retirer un">−</button><b id="q' + i + '">0</b>' +
       '<button data-i="' + i + '" data-d="1" aria-label="Ajouter un">+</button></div>';
     $("list").appendChild(el);
