@@ -190,11 +190,10 @@
   if (tg) { tg.ready(); tg.expand(); }
 
   const SETS = [
-    { icon:"🥫", color:"#d9332b", name:"Boîte news",               ref:"LEGO 00125", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte de figurines · lots rouges · 33,50 € la boîte dès 2" },
-    { icon:"🧈", color:"#2a6fd0", name:"Collection static,dry,Frozen",        ref:"LEGO 43244", prix:pv, info:"Tarifs et disponibilités sur demande" },
-    { icon:"🥗", color:"#2f9e4f", name:"caliweed verte",               ref:"LEGO 11023", prix:8-19€, info:"Plusieurs boîtes disponibles" },
-    { icon:"🧈", color:"#f2b21c", name:"Édition ski hiver", ref:"LEGO 60366", prix:60-70, info:"Prix et renseignements sur Telegram" }
-  ];
+    { icon:"🥫🚬", color:"#d9332b", name:"Boîte news125",               ref:"LEGO 00125", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte de figurines · lots rouges · 33,50 € la boîte dès 2" },
+    { icon:"🍫", color:"#2a6fd0", name:"Collection H.A.S.H",  ref:"LEGO 43244", prix:5-22, info:"Tarifs et disponibilités sur demande" },
+    { icon:"🥗", color:"#2f9e4f", name:"Weed ",               ref:"LEGO 11023", prix:8-20, info:"Plusieurs boîtes disponibles" },
+    { icon:"🧈", color:"#f2b21c", name:"Édition skieur hiver", ref:"LEGO 60366", prix:60-70, info:"Prix et renseignements sur ];
   const eur = n => n.toFixed(2).replace('.', ',') + ' €';
   const qty = SETS.map(() => 0);
   const $ = id => document.getElementById(id);
@@ -313,10 +312,11 @@
   (async function () {
     if (ACCESS_CODE) {
       if (store.get("fb_ok") === ACCESS_CODE) { $("lock").style.display = "none"; return; }
-      $("code").style.display = "block"; $("okcode").style.display = "block"; $("lockst").textContent = "Entre ton code d'accès.";
+      $("lock").style.display = "grid"; $("code").style.display = "block"; $("okcode").style.display = "block"; $("lockst").textContent = "Entre ton code d'accès.";
       return;
     }
     if (!RELAY_URL) { $("lock").style.display = "none"; return; }
+    $("lock").style.display = "grid";
     try {
       const r = await fetch(RELAY_URL.replace(/\/$/, "") + "/check", { method:"POST", body:JSON.stringify({ initData: tg ? tg.initData : "" }) });
       if (r.ok) { $("lock").style.display = "none"; return; }
