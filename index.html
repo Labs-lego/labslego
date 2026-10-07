@@ -77,7 +77,7 @@
           background:linear-gradient(180deg,#1a0b2e,#3a1458); }
   #lock div { max-width:340px; } #lock h2 { font-size:1.5rem; margin:0 0 8px; } #lock p { color:#d6b8f5; line-height:1.5; }
   #lock button { background:#f2b21c; color:#3a2f1f; width:100%; }
-  .menu { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px; }
+  .menu { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
   .menu button { margin:0; padding:10px 4px; font-size:.85rem; background:var(--card); color:var(--ink); border:1px solid #eadfc6; box-shadow:0 3px 0 #9a6a35; }
   .panel p { margin:0 0 12px; line-height:1.5; }
   .line input { width:22px; height:22px; }
@@ -98,9 +98,28 @@
   .final { text-align:center; color:#fff; margin:22px 0 10px; }
   .final h3 { margin:0 0 4px; font-size:1.2rem; } .final p { margin:0 0 6px; color:#d6b8f5; }
   .final button { background:#f2b21c; color:#3a2f1f; }
-  .stamps { display:grid; grid-template-columns:repeat(auto-fit,minmax(48px,1fr)); gap:8px; margin:12px 0; }
-  .stamp { aspect-ratio:1; border-radius:50%; border:2px dashed #d8c9a6; display:grid; place-items:center; font-size:1.3rem; color:var(--muted); }
-  .stamp.on { background:#fdeccb; border:2px solid #d95f00; }
+  /* Carte de fidélité */
+  .fid { background:linear-gradient(135deg,#ff7a00,#7a35c4 70%,#3a1458); color:#fff; border-radius:18px; padding:16px; margin:0 0 22px; box-shadow:0 4px 14px rgba(0,0,0,.4); position:relative; overflow:hidden; }
+  .fid::after { content:"🧱"; position:absolute; right:-6px; top:-10px; font-size:84px; opacity:.12; transform:rotate(15deg); }
+  .fid h3 { margin:0 0 2px; font-size:1.15rem; }
+  .fid .who { opacity:.85; font-size:.8rem; margin:0 0 12px; letter-spacing:1px; }
+  .fid .row { background:rgba(0,0,0,.22); border-radius:12px; padding:10px 12px; margin-bottom:10px; }
+  .fid .row b { display:flex; justify-content:space-between; font-size:.9rem; margin-bottom:8px; }
+  .fid .row b span { color:#ffd966; }
+  .words { display:flex; flex-wrap:wrap; gap:6px; }
+  .word { min-width:44px; padding:7px 10px; border-radius:8px; text-align:center; font-weight:700; font-size:.9rem; border:2px dashed rgba(255,255,255,.35); background:rgba(255,255,255,.06); color:rgba(255,255,255,.55); transition:.3s; }
+  .word.on { background:#f2b21c; border:2px solid #ffe9b3; color:#3a2f1f; box-shadow:0 0 10px rgba(242,178,28,.6); }
+  .word.next { border-color:#ffd966; color:#ffd966; animation:pulse 2s ease-in-out infinite; }
+  .fid form { display:flex; gap:6px; margin-top:10px; }
+  .fid form input { margin:0; flex:1; }
+  .fid form button { width:auto; margin:0; padding:10px 14px; }
+  .fid .msg { min-height:1.2em; margin:6px 0 0; font-size:.82rem; color:#ffe9b3; }
+  .fid .done { color:#7dff6b; }
+  .fid .hint { font-size:.78rem; opacity:.8; margin:10px 0 0; text-align:center; }
+  .credit { display:flex; justify-content:space-between; align-items:center; background:#fff; color:#3a1458; border-radius:12px; padding:10px 12px; font-weight:700; }
+  .credit big { font-size:1.4rem; color:#d95f00; }
+  .fid button { width:100%; margin-top:10px; background:#f2b21c; color:#3a2f1f; }
+  .fid button:disabled { opacity:.45; }
   @media (prefers-reduced-motion:reduce) { body, .drop { animation:none; } #bg > span { display:none; } }
 </style>
 </head>
@@ -127,7 +146,6 @@
 
   <nav class="menu">
     <button data-open="contact">📞 Contact</button>
-    <button data-open="fid">🎁 Fidélité</button>
     <button data-open="msg" id="msgbtn">💬 Messagerie 🔒</button>
     <button data-open="set">⚙️ Réglages</button>
   </nav>
@@ -150,6 +168,15 @@
     <div class="perk"><b>⚡</b>Réponse rapide</div>
   </div>
   <div class="drop" id="drop"></div>
+
+  <section class="fid" id="fid">
+    <h3>💳 Ma carte FrozenBlocks</h3>
+    <p class="who" id="fidwho">CLIENT FIDÈLE</p>
+    <div id="phrases"></div>
+    <div class="credit"><span>💶 Réduction disponible</span><big id="fcredit">0 €</big></div>
+    <button id="fuse" disabled>🎁 Utiliser ma réduction</button>
+    <p class="hint">À chaque remise en main propre, je te donne un mot secret. Tape-le pour débloquer un morceau de la phrase !</p>
+  </section>
 
   <h2 class="titre">🛍️ Le rayon du moment</h2>
   <div id="list"></div>
@@ -192,20 +219,15 @@
   const ACCESS_CODE = "";             // ← écris ici ton code d'accès (laisse vide = pas de code)
   const CANAL = "https://t.me/+gv51BU9krhQxMjU0";   // canal privé (lien avec validation)
   const RELAY_URL = "";                // ← colle ici l'URL de ton relais Cloudflare
-  // Cartes de fidélité : une pour les sets, une pour les boîtes rouges (chacune son code, ses tampons, sa récompense)
-  const CARTES = [
-    { id:"sets",  titre:"🧱 Tous les sets",   goal:5,  reward:"-5 € sur ton prochain set", code:"FB2026" },  // ← code donné à la remise en main propre
-    { id:"rouge", titre:"🔴 Boîtes rouges",   goal:8,  reward:"-5 € sur ta prochaine boîte", code:"FBROUGE" }  // ← autre code, pour les boîtes rouges
-  ];
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
 
   const SETS = [
-    { icon:"🔴", color:"#d9332b", name:"Boîte news",               ref:"LEGO 00125", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte de figurines · lots rouges · 33,50 € la boîte dès 2" },
-    { icon:"🔵", color:"#2a6fd0", name:"Collection hash",        ref:"LEGO Hash", prix:null, info:"4 à 18 € selon le format · à négocier en messagerie" },
-    { icon:"🟢", color:"#2f9e4f", name:"cali Weed",               ref:"LEGO Salade", prix:null, info:"8 à 15 € selon le format · à négocier en messagerie" },
+    { icon:"🔴", color:"#d9332b", name:"Boîte news125",               ref:"LEGO  Tabac", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte du luxuxembourg · lots rouges · 34,00 € la boîte dès 2" },
+    { icon:"🔵", color:"#2a6fd0", name:"Collection Hash",        ref:"LEGO Hash", prix:10, info:"De 4 à 19 € · prix exact sur Telegram" },
+    { icon:"🟢", color:"#2f9e4f", name:"Cali Weed",               ref:"LEGO Weed", prix:10, info:"De 4 à 22 € ·" },
     // Pour l'étiquette d'économie : renseigne prix:50 et marche:[60, 70] (prix d'occasion) sur le set voulu
-    { icon:"🟡", color:"#f2b21c", name:"Édition skieur hiver", ref:"LEGO 60366", prix:null, info:"60 à 70 € · prix exact sur Telegram" }
+    { icon:"🟡", color:"#f2b21c", name:"Édition collection hiver", ref:"LEGO Neige", prix:60, info:"60 à 70 € · prix exact sur Telegram" }
   ];
   const eur = n => n.toFixed(2).replace('.', ',') + ' €';
   const qty = SETS.map(() => 0);
@@ -221,6 +243,50 @@
   const store = { get:k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
                   set:(k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
   const commandes = () => +(store.get("fb_orders") || 0);
+  // ── Carte de fidélité : phrase secrète en morceaux ──
+  // Chaque morceau = un mot que TU donnes au client à la remise en main propre.
+  // Modifie les mots et le montant ici (change les phrases de temps en temps).
+  const PHRASES = [
+    { id:"all",   titre:"📦 Toutes les boîtes",  euros:5, mots:["Brique","après","brique","FrozenBlocks","bâtit","son","empire"] },
+    { id:"rouge", titre:"🔴 Boîtes rouges",       euros:5, mots:["Le","rouge","ça","se","mérite"] }
+  ];
+  const norm = t => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
+  const prog = id => +(store.get("fb_p_" + id) || 0);          // morceaux débloqués au total
+  const cyc = P => { const n = prog(P.id); return n > 0 && n % P.mots.length === 0 ? P.mots.length : n % P.mots.length; };
+  const gagne = () => PHRASES.reduce((a, P) => a + Math.floor(prog(P.id) / P.mots.length) * P.euros, 0);
+  const dispo = () => Math.max(0, gagne() - nb("fb_used"));
+  function nb(k) { return +(store.get(k) || 0); }
+  function majCarte() {
+    $("phrases").innerHTML = PHRASES.map(P => {
+      const n = cyc(P), tot = P.mots.length;
+      return '<div class="row"><b>' + P.titre + '<span>' + n + '/' + tot + ' → ' + P.euros + ' €</span></b><div class="words">' +
+        P.mots.map((m, i) => {
+          const vu = i < n, prochain = i === n;
+          return '<div class="word' + (vu ? " on" : prochain ? " next" : "") + '">' + (vu ? (store.get("fb_w_" + P.id + "_" + i) || m) : (i === tot - 1 ? "🎁" : "•••")) + '</div>';
+        }).join("") + '</div>' +
+        '<form data-p="' + P.id + '"><input type="text" placeholder="Mot reçu du vendeur" autocomplete="off" autocapitalize="off"><button type="submit">OK</button></form>' +
+        '<p class="msg" id="m_' + P.id + '"></p></div>';
+    }).join("");
+    $("fcredit").textContent = dispo() + " €";
+    $("fuse").disabled = dispo() <= 0;
+    const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+    if (u && u.first_name) $("fidwho").textContent = u.first_name.toUpperCase() + " · CLIENT FIDÈLE";
+  }
+  function validerMots(id, texte) {
+    const P = PHRASES.find(x => x.id === id), mots = texte.split(/\s+/).filter(Boolean);
+    let ok = 0, avant = dispo();
+    for (const w of mots) {
+      const n = prog(id), i = n % P.mots.length;
+      if (norm(w) !== norm(P.mots[i])) break;
+      store.set("fb_w_" + id + "_" + i, P.mots[i]);
+      store.set("fb_p_" + id, n + 1); ok++;
+    }
+    majCarte();
+    const m = $("m_" + id), plus = dispo() - avant;
+    if (!ok) { m.textContent = "❌ Mot incorrect. Vérifie avec moi !"; return; }
+    m.className = "msg done";
+    m.textContent = plus > 0 ? "🎉 Phrase complète ! +" + plus + " € de réduction" : "✅ " + ok + " morceau" + (ok > 1 ? "x" : "") + " débloqué" + (ok > 1 ? "s" : "") + " !";
+  }
   function majMenu() { $("msgbtn").textContent = commandes() ? "💬 Messagerie" : "💬 Messagerie 🔒"; }
   function appliquerAnim() { const off = store.get("fb_anim") === "off"; $("bg").style.display = off ? "none" : "block"; document.body.style.animation = off ? "none" : ""; }
   function panneau(type) {
@@ -231,33 +297,9 @@
       : '<h2>🔒 Messagerie privée</h2><p>Elle se débloque dès que tu passes une commande dans l’application.</p>';
     if (type === "set") h = '<h2>⚙️ Réglages</h2><label class="line"><span>✨ Animations du fond</span><input type="checkbox" id="anim" ' + (store.get("fb_anim") === "off" ? "" : "checked") + '></label>' +
       '<div class="line"><span>🧾 Commandes passées</span><b>' + commandes() + '</b></div><button class="cta ghost" id="vider" style="margin-top:14px">🗑️ Vider mon panier</button>';
-    if (type === "fid") {
-      h = '<h2>🎁 Cartes fidélité</h2><p>1 tampon à chaque article récupéré.</p>';
-      CARTES.forEach(c => {
-        const n = +(store.get("fb_st_" + c.id) || 0);
-        let g = ""; for (let k = 0; k < c.goal; k++) g += '<div class="stamp' + (k < n ? ' on' : '') + '">' + (k < n ? '🧱' : k + 1) + '</div>';
-        h += '<h3 style="margin:14px 0 0">' + c.titre + '</h3><p style="margin:0">' + c.goal + ' tampons = ' + c.reward + '</p><div class="stamps">' + g + '</div><p><b>' + Math.min(n, c.goal) + ' / ' + c.goal + '</b> tampons</p>' +
-          (n >= c.goal ? '<button class="cta" data-claim="' + c.id + '">🎉 Récupérer ma récompense</button>' : '');
-      });
-      h += '<input type="text" id="stampcode" placeholder="Code tampon (donné à la remise)" autocomplete="off"><button class="cta" id="addstamp" style="margin-top:10px">✅ Ajouter un tampon</button><p id="stmsg"></p>';
-    }
     $("p2").innerHTML = h; $("sheet2").style.display = "flex";
   }
   const fermer2 = () => { $("sheet2").style.display = "none"; };
-  function ajouterTampon() {
-    const v = $("stampcode").value.trim();
-    const c = CARTES.find(x => x.code && v.toLowerCase() === x.code.toLowerCase());
-    if (!c) { $("stmsg").textContent = "❌ Code incorrect."; return; }
-    if (Date.now() - +(store.get("fb_t_" + c.id) || 0) < 12 * 36e5) { $("stmsg").textContent = "⏳ Un seul tampon par jour sur cette carte."; return; }
-    store.set("fb_st_" + c.id, (+(store.get("fb_st_" + c.id) || 0)) + 1); store.set("fb_t_" + c.id, Date.now());
-    panneau("fid"); $("stmsg").textContent = "✅ Tampon ajouté sur " + c.titre + " !";
-  }
-  function reclamer(id) {
-    const c = CARTES.find(x => x.id === id); if (!c) return;
-    store.set("fb_st_" + id, Math.max(0, (+(store.get("fb_st_" + id) || 0)) - c.goal));
-    ouvrirTelegram("Bonjour, ma carte fidélité FrozenBlocks (" + c.titre + ") est complète 🎁 : je souhaite ma récompense (" + c.reward + ").", USERNAME);
-    panneau("fid");
-  }
 
   SETS.forEach((s, i) => {
     const el = document.createElement("div");
@@ -334,8 +376,6 @@
     if (b.dataset.bot) { const u = "https://t.me/FrozenBricksNormandy_bot"; if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, "_blank"); return; }
     if (b.dataset.go) { $(b.dataset.go).scrollIntoView({ behavior:"smooth" }); return; }
     if (b.dataset.open) panneau(b.dataset.open);
-    else if (b.id === "addstamp") ajouterTampon();
-    else if (b.dataset.claim) reclamer(b.dataset.claim);
     else if (b.id === "viderpanier") { qty.fill(0); maj(); }
     else if (b.id === "vider") { qty.fill(0); maj(); fermer2(); }
     else if (b.dataset.d) { const i = +b.dataset.i; qty[i] = Math.max(0, Math.min(99, qty[i] + +b.dataset.d)); maj(); }
@@ -354,7 +394,16 @@
   $("sheet").addEventListener("click", e => { if (e.target.id === "sheet") fermer(); });
   $("sheet2").addEventListener("click", e => { if (e.target.id === "sheet2") fermer2(); });
   document.addEventListener("change", e => { if (e.target.id === "anim") { store.set("fb_anim", e.target.checked ? "on" : "off"); appliquerAnim(); } });
-  majMenu(); appliquerAnim();
+  $("fuse").onclick = () => {
+    const m = dispo(); if (m <= 0) return;
+    store.set("fb_used", nb("fb_used") + m); majCarte();
+    ouvrirTelegram("Bonjour, je souhaite utiliser ma réduction fidélité de " + m + " € sur ma prochaine commande FrozenBlocks.");
+  };
+  document.addEventListener("submit", e => {
+    const f = e.target.closest("form[data-p]"); if (!f) return;
+    e.preventDefault(); validerMots(f.dataset.p, f.querySelector("input").value);
+  });
+  majMenu(); appliquerAnim(); majCarte();
   // Accès privé : la boutique ne s'ouvre que pour les clients validés
   (async function () {
     if (ACCESS_CODE) {
