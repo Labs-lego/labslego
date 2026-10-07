@@ -77,7 +77,7 @@
           background:linear-gradient(180deg,#1a0b2e,#3a1458); }
   #lock div { max-width:340px; } #lock h2 { font-size:1.5rem; margin:0 0 8px; } #lock p { color:#d6b8f5; line-height:1.5; }
   #lock button { background:#f2b21c; color:#3a2f1f; width:100%; }
-  .menu { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+  .menu { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:16px; }
   .menu button { margin:0; padding:10px 4px; font-size:.85rem; background:var(--card); color:var(--ink); border:1px solid #eadfc6; box-shadow:0 3px 0 #9a6a35; }
   .panel p { margin:0 0 12px; line-height:1.5; }
   .line input { width:22px; height:22px; }
@@ -98,6 +98,9 @@
   .final { text-align:center; color:#fff; margin:22px 0 10px; }
   .final h3 { margin:0 0 4px; font-size:1.2rem; } .final p { margin:0 0 6px; color:#d6b8f5; }
   .final button { background:#f2b21c; color:#3a2f1f; }
+  .stamps { display:grid; grid-template-columns:repeat(auto-fit,minmax(48px,1fr)); gap:8px; margin:12px 0; }
+  .stamp { aspect-ratio:1; border-radius:50%; border:2px dashed #d8c9a6; display:grid; place-items:center; font-size:1.3rem; color:var(--muted); }
+  .stamp.on { background:#fdeccb; border:2px solid #d95f00; }
   @media (prefers-reduced-motion:reduce) { body, .drop { animation:none; } #bg > span { display:none; } }
 </style>
 </head>
@@ -124,6 +127,7 @@
 
   <nav class="menu">
     <button data-open="contact">📞 Contact</button>
+    <button data-open="fid">🎁 Fidélité</button>
     <button data-open="msg" id="msgbtn">💬 Messagerie 🔒</button>
     <button data-open="set">⚙️ Réglages</button>
   </nav>
@@ -188,16 +192,15 @@
   const ACCESS_CODE = "";             // ← écris ici ton code d'accès (laisse vide = pas de code)
   const CANAL = "https://t.me/+gv51BU9krhQxMjU0";   // canal privé (lien avec validation)
   const RELAY_URL = "";                // ← colle ici l'URL de ton relais Cloudflare
+  // Cartes de fidélité : une pour les sets, une pour les boîtes rouges (chacune son code, ses tampons, sa récompense)
+  const CARTES = [
+    { id:"sets",  titre:"🧱 Tous les sets",   goal:5,  reward:"-5 € sur ton prochain set", code:"FB2026" },  // ← code donné à la remise en main propre
+    { id:"rouge", titre:"🔴 Boîtes rouges",   goal:8,  reward:"-5 € sur ta prochaine boîte", code:"FBROUGE" }  // ← autre code, pour les boîtes rouges
+  ];
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
-
-  const SETS = [
-    { icon:"🔴", color:"#d9332b", name:"Boîte news",               ref:"LEGO 00125", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte de figurines · lots rouges · 33,50 € la boîte dès 2" },
-    { icon:"🔵", color:"#2a6fd0", name:"Collection hash",        ref:"LEGO Hash", prix:null, info:"4 à 18 € selon le format · à négocier en messagerie" },
-    { icon:"🟢", color:"#2f9e4f", name:"cali Weed",               ref:"LEGO Salade", prix:null, info:"8 à 15 € selon le format · à négocier en messagerie" },
-    // Pour l'étiquette d'économie : renseigne prix:50 et marche:[60, 70] (prix d'occasion) sur le set voulu
-    { icon:"🟡", color:"#f2b21c", name:"Édition skieur hiver", ref:"LEGO 60366", prix:null, info:"60 à 70 € · prix exact sur Telegram" }
-  ];
+   
+  
   const eur = n => n.toFixed(2).replace('.', ',') + ' €';
   const qty = SETS.map(() => 0);
   // Étiquette d'économie vs prix d'occasion (rien si prix ou marche manquent, ou si pas moins cher)
@@ -222,9 +225,33 @@
       : '<h2>🔒 Messagerie privée</h2><p>Elle se débloque dès que tu passes une commande dans l’application.</p>';
     if (type === "set") h = '<h2>⚙️ Réglages</h2><label class="line"><span>✨ Animations du fond</span><input type="checkbox" id="anim" ' + (store.get("fb_anim") === "off" ? "" : "checked") + '></label>' +
       '<div class="line"><span>🧾 Commandes passées</span><b>' + commandes() + '</b></div><button class="cta ghost" id="vider" style="margin-top:14px">🗑️ Vider mon panier</button>';
+    if (type === "fid") {
+      h = '<h2>🎁 Cartes fidélité</h2><p>1 tampon à chaque article récupéré.</p>';
+      CARTES.forEach(c => {
+        const n = +(store.get("fb_st_" + c.id) || 0);
+        let g = ""; for (let k = 0; k < c.goal; k++) g += '<div class="stamp' + (k < n ? ' on' : '') + '">' + (k < n ? '🧱' : k + 1) + '</div>';
+        h += '<h3 style="margin:14px 0 0">' + c.titre + '</h3><p style="margin:0">' + c.goal + ' tampons = ' + c.reward + '</p><div class="stamps">' + g + '</div><p><b>' + Math.min(n, c.goal) + ' / ' + c.goal + '</b> tampons</p>' +
+          (n >= c.goal ? '<button class="cta" data-claim="' + c.id + '">🎉 Récupérer ma récompense</button>' : '');
+      });
+      h += '<input type="text" id="stampcode" placeholder="Code tampon (donné à la remise)" autocomplete="off"><button class="cta" id="addstamp" style="margin-top:10px">✅ Ajouter un tampon</button><p id="stmsg"></p>';
+    }
     $("p2").innerHTML = h; $("sheet2").style.display = "flex";
   }
   const fermer2 = () => { $("sheet2").style.display = "none"; };
+  function ajouterTampon() {
+    const v = $("stampcode").value.trim();
+    const c = CARTES.find(x => x.code && v.toLowerCase() === x.code.toLowerCase());
+    if (!c) { $("stmsg").textContent = "❌ Code incorrect."; return; }
+    if (Date.now() - +(store.get("fb_t_" + c.id) || 0) < 12 * 36e5) { $("stmsg").textContent = "⏳ Un seul tampon par jour sur cette carte."; return; }
+    store.set("fb_st_" + c.id, (+(store.get("fb_st_" + c.id) || 0)) + 1); store.set("fb_t_" + c.id, Date.now());
+    panneau("fid"); $("stmsg").textContent = "✅ Tampon ajouté sur " + c.titre + " !";
+  }
+  function reclamer(id) {
+    const c = CARTES.find(x => x.id === id); if (!c) return;
+    store.set("fb_st_" + id, Math.max(0, (+(store.get("fb_st_" + id) || 0)) - c.goal));
+    ouvrirTelegram("Bonjour, ma carte fidélité FrozenBlocks (" + c.titre + ") est complète 🎁 : je souhaite ma récompense (" + c.reward + ").", USERNAME);
+    panneau("fid");
+  }
 
   SETS.forEach((s, i) => {
     const el = document.createElement("div");
@@ -301,6 +328,8 @@
     if (b.dataset.bot) { const u = "https://t.me/FrozenBricksNormandy_bot"; if (tg && tg.openTelegramLink) tg.openTelegramLink(u); else window.open(u, "_blank"); return; }
     if (b.dataset.go) { $(b.dataset.go).scrollIntoView({ behavior:"smooth" }); return; }
     if (b.dataset.open) panneau(b.dataset.open);
+    else if (b.id === "addstamp") ajouterTampon();
+    else if (b.dataset.claim) reclamer(b.dataset.claim);
     else if (b.id === "viderpanier") { qty.fill(0); maj(); }
     else if (b.id === "vider") { qty.fill(0); maj(); fermer2(); }
     else if (b.dataset.d) { const i = +b.dataset.i; qty[i] = Math.max(0, Math.min(99, qty[i] + +b.dataset.d)); maj(); }
