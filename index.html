@@ -199,8 +199,14 @@
   ];
   const tg = window.Telegram && window.Telegram.WebApp;
   if (tg) { tg.ready(); tg.expand(); }
-   
-  
+
+  const SETS = [
+    { icon:"🔴", color:"#d9332b", name:"Boîte news",               ref:"LEGO 00125", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte de figurines · lots rouges · 33,50 € la boîte dès 2" },
+    { icon:"🔵", color:"#2a6fd0", name:"Collection hash",        ref:"LEGO Hash", prix:null, info:"4 à 18 € selon le format · à négocier en messagerie" },
+    { icon:"🟢", color:"#2f9e4f", name:"cali Weed",               ref:"LEGO Salade", prix:null, info:"8 à 15 € selon le format · à négocier en messagerie" },
+    // Pour l'étiquette d'économie : renseigne prix:50 et marche:[60, 70] (prix d'occasion) sur le set voulu
+    { icon:"🟡", color:"#f2b21c", name:"Édition skieur hiver", ref:"LEGO 60366", prix:null, info:"60 à 70 € · prix exact sur Telegram" }
+  ];
   const eur = n => n.toFixed(2).replace('.', ',') + ' €';
   const qty = SETS.map(() => 0);
   // Étiquette d'économie vs prix d'occasion (rien si prix ou marche manquent, ou si pas moins cher)
