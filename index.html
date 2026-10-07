@@ -190,10 +190,10 @@
   if (tg) { tg.ready(); tg.expand(); }
 
   const SETS = [
-    { icon:"🔴", color:"#d9332b", name:"Boîte news",               ref:"LEGO 00125", a partir prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte de tabac news · lots x3 · 33,50 € la boîte dès 2" },
-    { icon:"🔵", color:"#2a6fd0", name:"Collection -Hash",        ref:"LEGO 43244", a partir prix:6, palier:{ info:"le grame de 5€ A 18€ Tarifs est menue pv" },
-    { icon:"🟢", color:"#2f9e4f", name:"Weed. vert",               ref:"LEGO 11023", a partir prix:10, palier:{ info:"le Gramme a partir de 8€ A 22€🇺🇸" },
-    { icon:"⚪️", color:"#f2b21c", name:"Édition skieur hiver", ref:"LEGO 60366", prix:60, palier:{info:"60-70" }
+    { icon:"🔴", color:"#d9332b", name:"Boîte news",               ref:"LEGO 00125", a partir prix:35, { qte:2, prix:33.5 }, info:"Boîte de tabac news · lots x3 · 33,50 € la boîte dès 2" },
+    { icon:"🔵", color:"#2a6fd0", name:"Collection -Hash",        ref:"LEGO farms", a partir prix:6, info:"le grame de 5€ A 18€ Tarifs est menue pv" },
+    { icon:"🟢", color:"#2f9e4f", name:"Weed. vert",               ref:"LEGO gandja", a partir prix:10, info:"le Gramme a partir de 8€ A 22€🇺🇸" },
+    { icon:"⚪️", color:"#f2b21c", name:"Édition skieur hiver", ref:"LEGO neige", prix:60, info:"60-70" }
   ];
   const eur = n => n.toFixed(2).replace('.', ',') + ' €';
   const qty = SETS.map(() => 0);
