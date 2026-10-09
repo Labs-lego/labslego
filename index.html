@@ -88,6 +88,13 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
 .v{background:var(--card);border:1px solid #eadfc6;border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:6px;box-shadow:0 8px 0 #9a6a35,0 13px 12px rgba(0,0,0,.4)}
 .v .pic{width:100%;aspect-ratio:1;border-radius:12px;background:var(--tag);display:grid;place-items:center;font-size:40px;overflow:hidden}
 .v .pic img,.v .pic video{width:100%;height:100%;object-fit:cover}
+.v .pic[data-z]{cursor:zoom-in;position:relative}
+.v .pic video,.v .pic img{pointer-events:none}
+#zoom .big{font-size:120px;text-align:center;color:#fff}
+#zoom .big small{display:block;font-size:1rem;margin-top:10px}
+#zoom{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:16px}
+#zoom img,#zoom video{max-width:100%;max-height:82vh;border-radius:12px}
+#zoom .x{position:absolute;top:calc(14px + env(safe-area-inset-top));right:16px;width:44px;height:44px;border-radius:50%;padding:0;background:rgba(255,255,255,.2);font-size:1.3rem}
 .v h3{margin:0;font-size:.95rem}.v .d{margin:0;color:var(--muted);font-size:.78rem;flex:1}
 .v .pr{font-weight:800;color:var(--blue)}
 .v button{font-size:.9rem;padding:10px}
@@ -190,6 +197,7 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
   </div>
 </div>
 
+<div id="zoom"><button class="x" aria-label="Fermer">✕</button><div id="zc"></div></div>
 <div id="bar"><button id="voir">🛒 Voir ma commande</button></div>
 <div id="sheet"><div class="panel">
   <h2>🛒 Ma réservation</h2>
@@ -225,17 +233,18 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
   /* ── VITRINES (8 emplacements) : remplis ou modifie. null = vitrine libre.
      photo : chemin vers une image du dépôt, ex "photos/rouge.jpg" ── */
   const VITRINES = [
-    {nom:"Boîte rouge125",  icone:"🟥", prix:35,   etat:"Neuf scellé", desc:"33,50 € dès 2 boîtes", photo:"", video:"boite125.mp4", vendu:false},
-    {nom:"Boîte marron", icone:"🟫", prix:null, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"marron1.mp4", vendu:false},
-    {nom:"Boîte marron", icone:"🟫", prix:null, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"Dry73-130u.MP4", vendu:false},
-    {nom:"Boîte marron", icone:"🟫", prix:null, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"marron3.mp4", vendu:false},
-    {nom:"Boîte marron", icone:"🟫", prix:null, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"marron4.mp4", vendu:false},
-    {nom:"Boîte verte",  icone:"🟩", prix:null, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"verte.mp4", vendu:false},
-    {nom:"Boîte blanche",icone:"⬜", prix:null, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"blanche.mp4", vendu:false},
-    null
+    {nom:"Boîte rouge 10707", icone:"🟥", prix:35,   etat:"Neuf scellé", desc:"33,50 € dès 2 boîtes", photo:"rouge.jpg", video:"rouge.MP4", vendu:false},
+    {nom:"Boîte marron", icone:"🟫", prix:4, prixMax:5, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"marron1.mp4", vendu:false},
+    {nom:"Boîte marron", icone:"🟫", prix:4, prixMax:5, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"marron2.mp4", vendu:false},
+    {nom:"Boîte marron", icone:"🟫", prix:4, prixMax:5, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"marron3.mp4", vendu:false},
+    {nom:"Boîte marron", icone:"🟫", prix:4, prixMax:5, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"marron4.mp4", vendu:false},
+    {nom:"Boîte verte",  icone:"🟩", prix:8, prixMax:12, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"verte.mp4", vendu:false},
+    {nom:"Boîte blanche",icone:"⬜", prix:10, prixMax:18, etat:"Neuf scellé", desc:"Quantité limitée",     photo:"", video:"blanche.mp4", vendu:false},
+    {nom:"LEGO Creator 31120 · Château médiéval", icone:"🏰", prix:null, etat:"Neuf scellé", desc:"3 en 1 · dès 9 ans", photo:"", video:"Boite125.MP4", vendu:false}
   ];
 
   const eur = n => n.toFixed(2).replace('.', ',') + ' €';
+  const px = (p, m) => (m != null && m !== p) ? String(p).replace('.', ',') + " – " + String(m).replace('.', ',') + " €" : eur(p);
   const $ = id => document.getElementById(id);
   const esc = t => String(t == null ? "" : t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const store = { get:k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -324,9 +333,9 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
       if (!a) return '<div class="v vide"><div class="pic">🪟</div><div>Vitrine libre<br><small>Bientôt un article</small></div></div>';
       const on = selV.has(i);
       return '<div class="v' + (a.vendu ? " sold" : "") + (on ? " on" : "") + '">' +
-        '<div class="pic">' + (a.video ? '<video src="' + esc(a.video) + '"' + (a.photo ? ' poster="' + esc(a.photo) + '"' : '') + ' data-i="' + esc(a.icone || "📦") + '" onerror="this.replaceWith(document.createTextNode(this.dataset.i))" muted loop autoplay playsinline preload="metadata"></video>' : a.photo ? '<img loading="lazy" alt="" src="' + esc(a.photo) + '">' : esc(a.icone || "📦")) + '</div>' +
+        '<div class="pic" data-z="' + i + '">' + (a.video ? '<video src="' + esc(a.video) + '"' + (a.photo ? ' poster="' + esc(a.photo) + '"' : '') + ' data-i="' + esc(a.icone || "📦") + '" onerror="this.replaceWith(document.createTextNode(this.dataset.i))" muted loop autoplay playsinline preload="metadata"></video>' : a.photo ? '<img loading="lazy" alt="" src="' + esc(a.photo) + '">' : esc(a.icone || "📦")) + '</div>' +
         '<h3>' + esc(a.nom) + '</h3><p class="d">' + esc((a.etat ? a.etat + " · " : "") + (a.desc || "")) + '</p>' +
-        '<div class="pr">' + (a.prix != null ? eur(a.prix) : "Prix sur demande") + '</div>' +
+        '<div class="pr">' + (a.prix != null ? px(a.prix, a.prixMax) : "Prix sur demande") + '</div>' +
         '<button data-v="' + i + '"' + (a.vendu ? " disabled" : "") + '>' + (a.vendu ? "Vendu" : on ? "✓ Ajouté" : "🛒 Je le veux") + '</button></div>';
     }).join("");
   }
@@ -335,21 +344,21 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
   const pu = (s, q) => s.prix == null ? null : (s.palier && q >= s.palier.qte ? s.palier.prix : s.prix);
   function items() {
     const a = SETS.map((s, i) => ({ i, name:s.name, ref:s.ref, prix:pu(s, qty[i]), qty:qty[i] })).filter(x => x.qty > 0);
-    const b = [...selV].sort((x, y) => x - y).map(i => ({ v:i, name:VITRINES[i].nom, ref:"vitrine " + (i + 1), prix:VITRINES[i].prix, qty:1 }));
+    const b = [...selV].sort((x, y) => x - y).map(i => ({ v:i, name:VITRINES[i].nom, ref:"vitrine " + (i + 1), prix:VITRINES[i].prix, max:VITRINES[i].prixMax, qty:1 }));
     return a.concat(b);
   }
-  function total(L) { let somme = 0, manque = 0; L.forEach(x => { if (x.prix != null) somme += x.prix * x.qty; else manque++; }); return { somme, manque }; }
+  function total(L) { let somme = 0, max = 0, manque = 0; L.forEach(x => { if (x.prix != null) { somme += x.prix * x.qty; max += (x.max != null ? x.max : x.prix) * x.qty; } else manque++; }); return { somme, max, manque }; }
   function maj() {
     qty.forEach((q, i) => { const e = $("q" + i); if (e) e.textContent = q; });
     majVit();
     const L = items(), t = total(L), n = L.reduce((a, x) => a + x.qty, 0);
     $("bar").style.display = n ? "block" : "none";
     $("voir").textContent = "🛒 Réserver (" + n + " article" + (n > 1 ? "s" : "") + ")";
-    $("lines").innerHTML = L.map(x => '<div class="line"><span>' + esc(x.name) + ' <small>' + esc(x.ref) + '</small>' + (x.prix != null ? '<br><small>' + eur(x.prix * x.qty) + '</small>' : '') + '</span>' +
+    $("lines").innerHTML = L.map(x => '<div class="line"><span>' + esc(x.name) + ' <small>' + esc(x.ref) + '</small>' + (x.prix != null ? '<br><small>' + px(x.prix * x.qty, x.max != null ? x.max * x.qty : null) + '</small>' : '') + '</span>' +
       '<span class="mini">' + (x.v != null
         ? '<button data-v="' + x.v + '" aria-label="Retirer">✕</button>'
         : '<button data-i="' + x.i + '" data-d="-1" aria-label="Retirer un">−</button><b>' + x.qty + '</b><button data-i="' + x.i + '" data-d="1" aria-label="Ajouter un">+</button>') + '</span></div>').join("") +
-      (L.length ? '<div class="line tot"><b>Total</b><b>' + (t.somme > 0 ? eur(t.somme) + (t.manque ? ' + ' + t.manque + ' à confirmer' : '') : 'Prix à confirmer') + '</b></div>' : '');
+      (L.length ? '<div class="line tot"><b>' + (t.max > t.somme ? 'Total estimé' : 'Total') + '</b><b>' + (t.somme > 0 ? px(t.somme, t.max) + (t.manque ? ' + ' + t.manque + ' à confirmer' : '') : 'Prix à confirmer') + '</b></div>' : '');
     if (!n) fermer();
   }
   const ouvrir = () => { $("st").textContent = ""; $("sheet").style.display = "flex"; };
@@ -359,8 +368,8 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
   function texte(list, note, ref) {
     const t = total(list);
     return "Bonjour, je souhaite réserver (réf. " + ref + ") :\n" +
-      list.map(x => "• " + x.qty + "× " + x.name + " (" + x.ref + ")" + (x.prix != null ? " — " + eur(x.prix * x.qty) : "")).join("\n") +
-      (t.somme > 0 ? "\n\nTotal : " + eur(t.somme) + (t.manque ? " + " + t.manque + " à confirmer" : "") : "") +
+      list.map(x => "• " + x.qty + "× " + x.name + " (" + x.ref + ")" + (x.prix != null ? " — " + px(x.prix * x.qty, x.max != null ? x.max * x.qty : null) : "")).join("\n") +
+      (t.somme > 0 ? "\n\nTotal" + (t.max > t.somme ? " estimé" : "") + " : " + px(t.somme, t.max) + (t.manque ? " + " + t.manque + " à confirmer" : "") : "") +
       (val("montant") ? "\n💰 Montant proposé : " + val("montant") : "") +
       "\n\n💳 Paiement : " + $("pay").value + (val("slot") ? "\n📅 Créneau : " + val("slot") : "") +
       (val("adr") ? "\n📍 Adresse : " + val("adr") : "") + (note ? "\n\n" + note : "") +
@@ -436,6 +445,21 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
     const f = e.target.closest("form[data-p]"); if (!f) return;
     e.preventDefault(); validerMots(f.dataset.p, f.querySelector("input").value);
   });
+  // Agrandir photo / vidéo d'une vitrine
+  const zoom = $("zoom"), zc = $("zc");
+  const fermerZoom = () => { zoom.style.display = "none"; zc.innerHTML = ""; };
+  document.addEventListener("click", e => {
+    const p = e.target.closest(".pic[data-z]"); if (!p) return;
+    const a = VITRINES[+p.dataset.z]; if (!a) return;
+    const grand = '<div class="big">' + esc(a.icone || "📦") + '<small>' + esc(a.nom) + '</small></div>';
+    zc.innerHTML = a.video
+      ? '<video src="' + esc(a.video) + '" controls autoplay loop playsinline></video>'
+      : a.photo ? '<img alt="" src="' + esc(a.photo) + '">' : grand;
+    const m = zc.querySelector("video,img");
+    if (m) m.onerror = () => { zc.innerHTML = grand; };
+    zoom.style.display = "flex";
+  });
+  zoom.addEventListener("click", e => { if (e.target === zoom || e.target.closest(".x")) fermerZoom(); });
   $("voir").onclick = ouvrir; $("close").onclick = fermer; $("send").onclick = envoyer;
   majMenu(); appliquerAnim(); majCarte(); maj();
 
@@ -472,3 +496,16 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
     for (let i = 0; i < 26; i++) {
       const f = document.createElement("span"), t = ["🎃","👻","🎃","🦇"][i % 4];
       f.className = t === "🎃" ? "flake" : "spook"; f.textContent = t;
+      f.style.cssText = "left:" + r(0,100) + "%;font-size:" + r(16,34) + "px;--d:" + r(9,18) + "s;--delay:-" + r(0,18) + "s;--x:" + r(-40,40) + "px";
+      bg.appendChild(f);
+    }
+    const cols = ["#ff7a00","#8a3ffc","#6bd36b","#f2b21c"];
+    for (let i = 0; i < 9; i++) {
+      const b = document.createElement("span"); b.className = "brick";
+      b.style.cssText = "left:" + r(2,94) + "%;--w:" + r(26,48) + "px;--c:" + cols[i%4] + ";--d:" + r(16,30) + "s;--delay:-" + r(0,30) + "s;--r:" + r(-300,300) + "deg";
+      bg.appendChild(b);
+    }
+  })();
+</script>
+</body>
+</html>
