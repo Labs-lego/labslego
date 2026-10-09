@@ -129,13 +129,13 @@ button:focus-visible{outline:3px solid #f2b21c;outline-offset:2px}
 var CONTACT="Frozen_blokcNormandy16";
 var SETS=[
  {n:"Boîte rouge",d:"Tous les lots rouges",a:35,b:35,c:"#d9332b",v:"Rouge.MP4",i:"🔴"},
- {n:"Boîte marron",d:"3 références",a:30,b:1500,c:"#7a4a2a",v:"Marron.MP4",i:"🟤",g:1},
+ {n:"Boîte marron",d:"3 références",a:30,b:1500,c:"#7a4a2a",v:"Poule3/Marron.MP4",i:"🟤",g:1},
  {n:"Boîte verte",d:"3 options",a:10,b:200,c:"#2f9e4f",v:"Verte.MP4",i:"🟢",g:1},
  {n:"Boîte blanche",d:"Briques variées",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪️"}
 ];
 var q=SETS.map(function(){return 0});
 function lots(h,a){return a.map(function(x){return {n:h+" · "+x[0]+" boîtes",l:x[0]+" boîtes",h:h,p:x[1],g:1}})}
-var SUB=[].concat(lots(jaune",[[5,30],[10,50],[25,100],[50,180],[100,320],[500,1500]]),lots("dry45u",[[5,40],[10,70],[25,150],[50,250]]),lots("forbidden",[[5,80],[10,150],[50,550]]),[{n:"lemon Haze",p:10,g:2},{n:"biscoty usa lot de 3",p:70,g:2},{n:"biscotte lot de 10",p:200,g:2}]);
+var SUB=[].concat(lots(jaune",[[5,30],[10,50],[25,100],[50,180],[100,320]]),lots("dry45u",[[5,40],[10,70],[25,150],[50,250]]),lots("forbidden",[[5,80],[10,150],[50,550]]),[{n:"lemon Haze",p:10,g:2},{n:"biscoty usa lot de 3",p:70,g:2},{n:"biscotte lot de 10",p:200,g:2}]);
 var qs=SUB.map(function(){return 0});
 var lastH="";function subHTML(G){lastH="";return '<div class="hint">▾ Appuie pour choisir</div><div class="subs">'+SUB.map(function(s,k){if(s.g!==G)return '';var H='';if(s.h&&s.h!==lastH){lastH=s.h;H='<div class="sh">'+s.h+'</div>'}return H+'<div class="sr"><span>'+(s.l||s.n)+' · <b>'+f(s.p)+' €</b></span><div class="qty2"><button data-s="'+k+'" data-d="-1" aria-label="Retirer">−</button><b id="s'+k+'">0</b><button data-s="'+k+'" data-d="1" aria-label="Ajouter">+</button></div></div>'}).join('')+'</div>'}
 function $(id){return document.getElementById(id)}
