@@ -472,16 +472,3 @@ label.l{display:block;margin-top:12px;font-size:.82rem;color:var(--muted)}
     for (let i = 0; i < 26; i++) {
       const f = document.createElement("span"), t = ["🎃","👻","🎃","🦇"][i % 4];
       f.className = t === "🎃" ? "flake" : "spook"; f.textContent = t;
-      f.style.cssText = "left:" + r(0,100) + "%;font-size:" + r(16,34) + "px;--d:" + r(9,18) + "s;--delay:-" + r(0,18) + "s;--x:" + r(-40,40) + "px";
-      bg.appendChild(f);
-    }
-    const cols = ["#ff7a00","#8a3ffc","#6bd36b","#f2b21c"];
-    for (let i = 0; i < 9; i++) {
-      const b = document.createElement("span"); b.className = "brick";
-      b.style.cssText = "left:" + r(2,94) + "%;--w:" + r(26,48) + "px;--c:" + cols[i%4] + ";--d:" + r(16,30) + "s;--delay:-" + r(0,30) + "s;--r:" + r(-300,300) + "deg";
-      bg.appendChild(b);
-    }
-  })();
-</script>
-</body>
-</html>
