@@ -223,9 +223,9 @@
   if (tg) { tg.ready(); tg.expand(); }
 
   const SETS = [
-    { icon:"🔴", color:"#d9332b", name:"Boîte news125",               ref:"LEGO  Tabac", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte du luxuxembourg · lots rouges · 34,00 € la boîte dès 2" },
+    { icon:"🔴", color:"#d9332b", name:"Boîte news125",               ref:"LEGO  Tabac", prix:35, palier:{ qte:2, prix:33.5 }, info:"Boîte du Luxembourg · lots rouges · 34,00 € la boîte dès 2" },
     { icon:"🔵", color:"#2a6fd0", name:"Collection Hash",        ref:"Jaunedryfrozenstatic", prix:10, info:"De 4 à 19 € · prix exact sur Telegram" },
-    { icon:"🟢", color:"#2f9e4f", name:"Cali Weed",               ref:"LEGO Weed", prix:10, info:"De 4 à 22 € · jaunefrozendry" },
+    { icon:"🟢", color:"#2f9e4f", name:"Cali Weed",               ref:"LEGO Weed", prix:10, info:"De 4 à 22 € jaunedryfrozenstatic" },
     // Pour l'étiquette d'économie : renseigne prix:50 et marche:[60, 70] (prix d'occasion) sur le set voulu
     { icon:"🟡", color:"#f2b21c", name:"collection hiver", ref:"LEGO Neige", prix:60, info:"60 à 70 € · prix exact sur Telegram" }
   ];
@@ -247,7 +247,7 @@
   // Chaque morceau = un mot que TU donnes au client à la remise en main propre.
   // Modifie les mots et le montant ici (change les phrases de temps en temps).
   const PHRASES = [
-    { id:"all",   titre:"📦 Toutes les boîtes",  euros:5, mots:["Brique","après","brique","FrozenBlocks","bâtit","son","empire"] },
+    { id:"all",   titre:"📦 Toutes les boîtes",  euros:-10%, mots:["Briques","après","brique","FrozenBlocks","bâtit","son","empire"] },
     { id:"rouge", titre:"🔴 Boîtes rouges",       euros:5, mots:["Le","rouge","ça","se","mérite"] }
   ];
   const norm = t => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "");
