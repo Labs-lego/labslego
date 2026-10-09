@@ -128,10 +128,17 @@ button:focus-visible{outline:3px solid #f2b21c;outline-offset:2px}
 // Pour chaque boîte, v = nom EXACT de la vidéo (mêmes majuscules) déposée à côté de ce fichier. Laisse "" pour ne pas mettre de vidéo.
 var CONTACT="Frozen_blokcNormandy16";
 var SETS=[
- {n:"Boîte news",d:"Tous les lots rouges",a:35,b:35,c:"#d9332b",v:"Rouge.MP4",i:"🔴"},
- {n:"colection hash",d:"3 références",a:30,b:1500,c:"#7a4a2a",v:"Marron.MP4",i:"🟤",g:1},
- {n:"cali weed",d:"2 références",a:30,b:200,c:"#2f9e4f",v:"Verte.MP4",i:"🟢",g:1},
- {n:"skieur alpin",d:"Briques blanche",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪️"}
+ {n:"Boîte 125",d:"125g",a:35,b:35,c:"#d9332b",v:"Rouge.MP4",i:"🔴"},
+ {n:"Collection hash",d:"jaune🇲🇦 · dry🇪🇸 · frozen🥶",a:30,b:1500,c:"#7a4a2a",v:"Marron.MP4",i:"🟤",g:1},
+ {n:"Cali Weed",d:"-✅️Lemon Haze 🍋 
+
+-3G/30G -5G/50€ -10G/80€
+-25G/180€ 
+
+🇺🇸🏆Biscoty usa 
+
+-3g/70€ -6g/120€-10g/200e",a:30,b:200,c:"#2f9e4f",v:"Verte.MP4",i:"🟢",g:1},
+ {n:"brick blanche",d:"Briques variées",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪️"}
 ];
 var q=SETS.map(function(){return 0});
 function lots(h,a,g){return a.map(function(x){return {n:h+" · "+x[0]+" boîtes",l:x[0]+" boîtes",h:h,p:x[1],g:g||1}})}
