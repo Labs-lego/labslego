@@ -643,10 +643,10 @@ var SETS=[
 ];
 var q=SETS.map(function(){return 0});
 function lots(h,a){return a.map(function(x){return {n:h+" · "+x[0]+" G",l:x[0]+" G",h:h,p:x[1],
-SUB=[].concat(lots("Jaune",[[5,30],[10,50],[25,100],[50,180],[100,320],[500,1500]]),lots("Dry 45u",[[5,40],[10,70],[25,150],[50,250]]),lots("Forbidden",[[5,80],[10,150],[50,550]]),[{n:"Lemon haze",p:10,g:2},
- {n:"BiscotyUSA🇺🇸🥇lot de 3",p:70,g:2},
-                                                                                                                                                               
-{n:"BiscotymUSA🇺🇸🥇10g",p:200,g:2}]);
+SUB=[].concat(lots("Jaune",[[5,30],[10,50],[25,100],[50,180],[100,320],[500,1500]]),lots("Dry 45u",[[5,40],[10,70],[25,150],[50,250]]),lots("Forbidden",[[5,80],[10,150],[50,550]]),
+[{n:"Lemon haze",p:10,g:2},
+            {n:"BiscotyUSA🇺🇸🥇lot de 3",p:70,g:2},
+             {n:"BiscotymUSA🇺🇸🥇10g",p:200,g:2}]);
 
 var qs=SUB.map(function(){return 0});
 var lastH="";function subHTML(G){lastH="";return '<div class="hint">▾ Appuie pour choisir</div><div class="subs">'+SUB.map(function(s,k){if(s.g!==G)return '';var H='';if(s.h&&s.h!==lastH){lastH=s.h;H='<div class="sh">'+s.h+'</div>'}return H+'<div class="sr"><span>'+(s.l||s.n)+' · <b>'+f(s.p)+' €</b></span><div class="qty2"><button data-s="'+k+'" data-d="-1" aria-label="Retirer">−</button><b id="s'+k+'">0</b><button data-s="'+k+'" data-d="1" aria-label="Ajouter">+</button></div></div>'}).join('')+'</div>'}
