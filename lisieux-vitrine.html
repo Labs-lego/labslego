@@ -34,6 +34,7 @@ h1{margin:0;font-family:Anton,Impact,'Arial Narrow',sans-serif;font-weight:400;l
 .hint{grid-column:1/-1;text-align:center;color:#8a6a12;font-weight:800;font-size:.9rem}.card.open .hint{display:none}
 .subs{display:none;grid-column:1/-1;border-top:1px dashed #d8c9a6;margin-top:6px}.card.open .subs{display:block}
 .sr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-weight:800}
+.sh{font-family:Anton,Impact,'Arial Narrow',sans-serif;text-transform:uppercase;letter-spacing:1px;font-size:1.1rem;color:#3a2f1f;margin:14px 0 2px}
 .qty2{display:flex;align-items:center;gap:14px}.qty2 button{width:42px;padding:6px;font-size:1.2rem}.qty2 b{min-width:24px;text-align:center}
 .scene{position:relative;margin:0 0 34px;border-radius:18px;overflow:hidden;background:#1a0b2e;line-height:0;border:3px solid #f2b21c;box-shadow:0 0 22px rgba(242,178,28,.35),0 8px 0 #8a6a12}
 .scene svg{width:100%;height:auto;display:block}
@@ -127,15 +128,16 @@ button:focus-visible{outline:3px solid #f2b21c;outline-offset:2px}
 // Pour chaque boîte, v = nom EXACT de la vidéo (mêmes majuscules) déposée à côté de ce fichier. Laisse "" pour ne pas mettre de vidéo.
 var CONTACT="Frozen_blokcNormandy16";
 var SETS=[
- {n:"Boîte rouge",d:"Tous les lots rouges",a:35,b:35,c:"#d9332b",v:"Rouge.MP4",i:"🔴"},
- {n:"Boîte marron",d:"3 références",a:4,b:14,c:"#7a4a2a",v:"Marron.MP4",i:"🟤",g:1},
- {n:"Boîte verte",d:"3 options",a:10,b:200,c:"#2f9e4f",v:"Verte.MP4",i:"🟢",g:1},
- {n:"Boîte blanche",d:"Briques variées",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪️"}
+ {n:"Boîte news",d:"Tous les lots rouges",a:35,b:35,c:"#d9332b",v:"Rouge.MP4",i:"🔴"},
+ {n:"colection hash",d:"3 références",a:30,b:1500,c:"#7a4a2a",v:"Marron.MP4",i:"🟤",g:1},
+ {n:"cali weed",d:"2 références",a:30,b:200,c:"#2f9e4f",v:"Verte.MP4",i:"🟢",g:1},
+ {n:"skieur alpin",d:"Briques blanche",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪️"}
 ];
 var q=SETS.map(function(){return 0});
-var SUB=[{n:"Mouton",p:4,g:1},{n:"Lapin",p:8,g:1},{n:"Cheval",p:14,g:1},{n:"Schweppes",p:10,g:2},{n:"Biscotte lot de 3",p:70,g:2},{n:"Biscotte lot de 10",p:200,g:2}];
+function lots(h,a,g){return a.map(function(x){return {n:h+" · "+x[0]+" boîtes",l:x[0]+" boîtes",h:h,p:x[1],g:g||1}})}
+var SUB=[].concat(lots("Mouton",[[5,30],[10,50],[25,100],[50,180],[100,320],[500,1500]]),lots("Lapin",[[5,40],[10,70],[25,150],[50,250]]),lots("Cheval",[[5,80],[10,150],[50,550]]),lots("Schweppes",[[3,30],[5,50],[10,80],[25,180]],2),lots("Biscote",[[3,70],[6,120],[10,200]],2));
 var qs=SUB.map(function(){return 0});
-function subHTML(G){return '<div class="hint">▾ Appuie pour choisir</div><div class="subs">'+SUB.map(function(s,k){if(s.g!==G)return '';return '<div class="sr"><span>'+s.n+' · <b>'+f(s.p)+' €</b></span><div class="qty2"><button data-s="'+k+'" data-d="-1" aria-label="Retirer">−</button><b id="s'+k+'">0</b><button data-s="'+k+'" data-d="1" aria-label="Ajouter">+</button></div></div>'}).join('')+'</div>'}
+var lastH="";function subHTML(G){lastH="";return '<div class="hint">▾ Appuie pour choisir</div><div class="subs">'+SUB.map(function(s,k){if(s.g!==G)return '';var H='';if(s.h&&s.h!==lastH){lastH=s.h;H='<div class="sh">'+s.h+'</div>'}return H+'<div class="sr"><span>'+(s.l||s.n)+' · <b>'+f(s.p)+' €</b></span><div class="qty2"><button data-s="'+k+'" data-d="-1" aria-label="Retirer">−</button><b id="s'+k+'">0</b><button data-s="'+k+'" data-d="1" aria-label="Ajouter">+</button></div></div>'}).join('')+'</div>'}
 function $(id){return document.getElementById(id)}
 function f(x){return (Math.round(x*100)/100).toString().replace(".",",")}
 function r(a,b){return a===b?f(a)+" €":f(a)+" à "+f(b)+" €"}
