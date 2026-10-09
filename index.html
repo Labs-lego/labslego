@@ -124,7 +124,8 @@ button:focus-visible{outline:3px solid #f2b21c;outline-offset:2px}
 
 <div id="bar"><div><span id="tot"></span><a id="go" href="#" target="_blank" rel="noopener">✅ Réserver</a></div></div>
 
-<script>
+<script>window.onerror=function(m,s,l){document.body.insertAdjacentHTML("afterbegin","<p style='background:#c00;color:#fff;padding:10px;position:relative;z-index:99'>Erreur : "+m+" (ligne "+l+")</p>")};
+
 // Pour chaque boîte, v = nom EXACT de la vidéo (mêmes majuscules) déposée à côté de ce fichier. Laisse "" pour ne pas mettre de vidéo.
 var CONTACT="Frozen_blokcNormandy16";
 var SETS=[
