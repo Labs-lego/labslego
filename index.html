@@ -136,7 +136,7 @@ var SETS=[
 ];
 var q=SETS.map(function(){return 0});
 function lots(h,a){return a.map(function(x){return {n:h+" · "+x[0]+"g",l:x[0]+" g",h:h,p:x[1],g:1}})}
-var SUB=[].concat(lots("jaune bubble nicole-kush🥝🍓",[[2,10],[4,20],[10,45],[25,90],[50,160],[100,300]]),lots("Dry Papaya X gellato 45u🇲🇦",[[4.5,40],[10,70],[25,160],[50,250]]),lots("Forbidden Fruit X Runtz Static🎖🇲🇦 ",[[5,80],[10,150],[50,550]]),[{n:"lemon haze",p:10,g:2},lots{n:"Bruce Banner🇺🇸🥇 lot de 3g",p:70,g:2},{n:"Bruce Banner🥇🇺🇸  lot de 10g",p:200,g:2}]);
+var SUB=[].concat(lots("jaune bubble nicole-kush🥝🍓",[[2,10],[4,20],[10,45],[25,90],[50,160],[100,300]]),lots("Dry Papaya X gellato 45u🇲🇦",[[4.5,40],[10,70],[25,160],[50,250]]),lots("Forbidden Fruit X Runtz Static🎖🇲🇦 ",[[5,80],[10,150],[50,550]]),[{n:"lemon haze",p:10,g:2},lots({n:"Bruce Banner🇺🇸🥇 lot de 3g",p:70,g:2},{n:"Bruce Banner🥇🇺🇸  lot de 10g",p:200,g:2}]);
 var qs=SUB.map(function(){return 0});
 var lastH="";function subHTML(G){lastH="";return '<div class="hint">▾ Appuie pour choisir</div><div class="subs">'+SUB.map(function(s,k){if(s.g!==G)return '';var H='';if(s.h&&s.h!==lastH){lastH=s.h;H='<div class="sh">'+s.h+'</div>'}return H+'<div class="sr"><span>'+(s.l||s.n)+' · <b>'+f(s.p)+' €</b></span><div class="qty2"><button data-s="'+k+'" data-d="-1" aria-label="Retirer">−</button><b id="s'+k+'">0</b><button data-s="'+k+'" data-d="1" aria-label="Ajouter">+</button></div></div>'}).join('')+'</div>'}
 function $(id){return document.getElementById(id)}
