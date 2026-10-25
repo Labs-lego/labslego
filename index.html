@@ -47,11 +47,10 @@ button{border:0;border-radius:10px;background:#f2b21c;color:#111;font-size:1rem;
 <div id="bar"><div><span id="tot"></span><a id="go" href="#" target="_blank" rel="noopener">✅ Réserver</a></div></div>
 <script>
 var CONTACT="Frozen_blokcNormandy16";
-var{n:"boite 125g🚬",d:"Deux pots acheter-3€",a:35,b:35,c:"#d9332b",v:"Rouge.MP4",i:"🚬"},
- {n:"menue hash🇲🇦🍫",d:"3 références",a:10,b:1000,c:"#7a4a2a",v:"Marron1.mp4",m:["Marron1.jpg","Marron2.mp4","Marron10.mp4"],i:"🇲🇦🍫🇪🇸",g:1},
- {n:"menue Weed🇺🇸🇳🇱",d:"3 options",a:10,b:200,c:"#2f9e4f",v:"verte/Verte.MP4",m:["Lemon.jpg","cali.mp4","usa/Verte.mp4"],i:"🇺🇸🥗🇳🇱",g:1},
- {n:"boite Skieur❄️⛷️",d:"suriname ",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"🇸🇷"}
-];
+var SETS=[{n:"boîte Sauce",d:"Tous les lots rouges",a:35,b:35,c:"#d9332b",i:"🔴"},
+{n:"menu viande",d:"3 choix, vendus au kilo",c:"#7a4a2a",i:"🟤",o:[["Bœuf",7500,1],["Poulet",7],["Dinde",4]]},
+{n:"menu fruit",d:"3 choix, vendus au kilo",c:"#2f9e4f",i:"🟢",o:[["Pomme",7],["Fraise",6],["Tomate",9]]},
+{n:"riz long",d:"Suriname",a:60,b:70,c:"#f3f3f3",i:"⚪️"}];
 var q=SETS.map(function(s){return s.o?s.o.map(function(){return 0}):0});
 function $(i){return document.getElementById(i)}
 function fq(g){return Math.round(g*1000)+" g"}
@@ -106,7 +105,7 @@ st.textContent="#gfab{position:fixed;top:calc(10px + env(safe-area-inset-top,0px
 document.head.appendChild(st);
 host.innerHTML='<h2 class="titre">\ud83c\udfae Memory des briques</h2><div class="gm"><p>1 essai toutes les 24 h : trouve les 8 paires en 23 coups max. Si tu perds, reviens demain !</p>'+
 '<div class="gp">Top 10 de la semaine : \ud83e\udd47 10 \u20ac \u00b7 \ud83e\udd48\ud83e\udd49 5 \u20ac \u00b7 4e \u00e0 10e 2 \u20ac</div>'+
-'<div class="mg" id="gg"></div>'+
+'<div class="gp" id="gcd" style="background:#2b1640;color:#f2b21c">\u23f3 24:00:00</div><div class="mg" id="gg"></div>'+
 '<div class="gi"><span>Coups : <b id="gmv">0</b>/23</span><span>Temps : <b id="gtm">0</b> s</span><span>Record : <b id="gbs">0</b></span></div>'+
 '<input id="gpn" type="text" maxlength="16" placeholder="Ton pseudo" aria-label="Pseudo">'+
 '<button id="gbtn">\u25b6 Nouvelle partie</button><a id="gsend" href="#" target="_blank" rel="noopener">\ud83d\udce8 Envoyer mon score</a><h3 style="margin:14px 0 4px">\ud83c\udfc6 Classement de la semaine</h3><ol id="glb"></ol></div>';
@@ -122,7 +121,8 @@ $("gbs").textContent=best;$("gpn").value=ld("fb_pseudo")||"";
 var FACES=["\ud83d\udfe5","\ud83d\udfe8","\ud83d\udfe6","\ud83d\udfe9","\u2b1c","\ud83d\udfeb","\ud83d\udfe7","\ud83d\udfea"];
 var PRIZE=["10 \u20ac","5 \u20ac","5 \u20ac","2 \u20ac","2 \u20ac","2 \u20ac","2 \u20ac","2 \u20ac","2 \u20ac","2 \u20ac"];
 // Classement partag\u00e9 : colle ici l'adresse de ta base Firebase Realtime Database (sinon classement local seulement)
-var LB_URL="";
+var LB_URL="https://frozenblocks-arcade-default-rtdb.europe-west1.firebasedatabase.app";
+function did(){var i=ld("fb_id");if(!i||!/^[a-z0-9]{12,24}$/.test(i)){i="";var a="abcdefghijklmnopqrstuvwxyz0123456789";for(var n=0;n<16;n++)i+=a[Math.floor(Math.random()*36)];sv("fb_id",i)}return i}
 var cards,open,lock,moves,found,t0,timer,score=0,done=false,locked=false,MAXM=23;
 function today(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
 function esc(x){return String(x).replace(/[&<>"']/g,function(c){return "&#"+c.charCodeAt(0)+";"})}
@@ -136,20 +136,22 @@ function showLB(rows){
 }
 function localRows(){try{var o=JSON.parse(ld("fb_loc")||"{}");return o.w===w0?o.r:[]}catch(e){return []}}
 function lbU(){return LB_URL.replace(/\/$/,"")+"/scores/"+w0+".json"}
+function lbE(){return LB_URL.replace(/\/$/,"")+"/scores/"+w0+"/"+did()+"_"+today()+".json"}
 function loadLB(){
  if(!LB_URL){showLB(localRows());return}
- fetch(lbU()).then(function(r){return r.json()}).then(function(o){showLB(Object.keys(o||{}).map(function(k){return o[k]}))}).catch(function(){showLB(localRows())});
+ fetch(lbU()+"?orderBy=%22s%22&limitToLast=50").then(function(r){return r.json()}).then(function(o){showLB(Object.keys(o||{}).map(function(k){return o[k]}))}).catch(function(){showLB(localRows())});
 }
-function postLB(p,sc){
+function postLB(p,sc,m,d){
  if(!LB_URL){var r=localRows();r.push({p:p,s:sc});sv("fb_loc",JSON.stringify({w:w0,r:r}));showLB(r);return}
- fetch(lbU(),{method:"POST",body:JSON.stringify({p:p,s:sc,t:Date.now()})}).then(loadLB).catch(function(){});
+ fetch(lbE(),{method:"PUT",body:JSON.stringify({p:p,s:sc,m:m,d:d,t:{".sv":"timestamp"}})}).then(loadLB).catch(function(){});
 }
 var endMsg="";
 function nextT(){return +ld("fb_next")||0}
 function fmt(ms){var s=Math.max(0,Math.floor(ms/1000)),h=Math.floor(s/3600),m=Math.floor(s%3600/60);s%=60;return (h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s}
 function tick(){
- if(!locked)return;
  var left=nextT()-Date.now();
+ $("gcd").textContent=left>0?"\u23f3 Prochain essai dans "+fmt(left):"\ud83d\udfe2 Essai disponible";
+ if(!locked)return;
  if(left<=0){locked=false;endMsg="";start();return}
  $("gbtn").textContent=(endMsg?endMsg+" \u00b7 ":"")+"\u23f3 Prochain essai dans "+fmt(left);
 }
@@ -159,7 +161,7 @@ function win(){
  var s=secs();score=Math.max(10,1000-moves*20-s*5);$("gtm").textContent=s;
  end("\u2705 Bravo ! Reviens demain");
  if(score>best){best=score;sv("fb_best",JSON.stringify({w:w0,b:best}));$("gbs").textContent=best}
- link();$("gsend").style.display="block";postLB(pseudo(),score);
+ link();$("gsend").style.display="block";postLB(pseudo(),score,moves,s);
 }
 function check(){if(found===8)win();else if(moves>=MAXM)end("\ud83d\ude22 Perdu ! Reviens demain")}
 function flip(i){
