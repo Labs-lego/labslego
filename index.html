@@ -142,6 +142,7 @@ function $(id){return document.getElementById(id)}
 function f(x){return (Math.round(x*100)/100).toString().replace(".",",")}
 function r(a,b){return a===b?f(a)+" €":f(a)+" à "+f(b)+" €"}
 
+  
 var vm=$("vm"),v=$("vid");
 function openV(k){var s=SETS[k];if(!s||!s.v)return;$("vn").textContent=s.n;v.src=s.v;vm.style.display="flex";var p=v.play();if(p&&p.catch)p.catch(function(){})}
 function closeV(){vm.style.display="none";v.pause();v.removeAttribute("src");v.load()}
