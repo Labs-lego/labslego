@@ -53,13 +53,13 @@ var CONTACT="Frozen_blokcNormandy16";
 (function(){
 // ---- À MODIFIER ----
 // a = prix mini, b = prix maxi, v = nom EXACT du fichier vidéo (mêmes majuscules)
-// Lots proposés sur chaque référence 🟤 et 🟢 (k = nombre de boîtes, p = prix du lot)
-var LOTS=[{k:2,p:10},{k:5,p:30},{k:10,p:50},{k:25,p:100},{k:50,p:180},{k:100,p:320}];
+// Lots proposés sur chaque référence 🟤 et 🟢 (k = nombre de grames, p = prix du gramme)
+var LOTS=[{k:2,p:10},{k:5,5,p:30},{k:10,p:50},{k:25,p:100},{k:50,p:170},{k:100,p:320}];
 var SETS=[
- {n:"Boîte œuf de poule",d:"Tous les lots rouges · 2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
- {n:"Boîte d’œuf crabe",d:"3 références",r:["Poule","Dinde","Tortue"],lots:LOTS,a:10,b:1500,from:1,c:"#7a4a2a",img:"marron.jpg",vs:[["Poule","marron-poule.mp4"],["Dinde","marron-dinde.mp4"],["Tortue","marron-tortue.mp4"]],i:"🟤"},
- {n:"Boîte d’œuf lapin",d:"3 références",r:["Lapin nain","Lapin papillon","Lapin papillon x10"],lots:LOTS,from:1,a:10,b:200,c:"#2f9e4f",img:"verte.jpg",vs:[["Lapin nain","verte-nain.mp4"],["Lapin papillon","verte-papillon.mp4"]],i:"🟢"},
- {n:"Boîte caviar",d:"Œufs variés",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪"}
+ {n:"Boîte News125g",d:"Tous les lots rouges · 2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
+ {n:"Menue hash🇲🇦",d:"3 références",r:["Jaune","Dry 45u","Static plasma120u"],lots:LOTS,a:10,b:1500,from:1,c:"#7a4a2a",img:"marron.jpg",vs:[["Poule","marron-poule.mp4"],["Dinde","marron-dinde.mp4"],["Tortue","marron-tortue.mp4"]],i:"🟤"},
+ {n:"Menue Weed🇳🇱",d:"3 références",r:[" Amnésia🇳🇱","blue zushi","blue zushi x10"],lots:LOTS,from:1,a:10,b:200,c:"#2f9e4f",img:"verte.jpg",vs:[["Lapin nain","verte-nain.mp4"],["Lapin papillon","verte-papillon.mp4"]],i:"🟢"},
+ {n:"Caviar Alpin",d:"Coke suriname",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪"}
 ];
 // Cartes de fidélité : m = mots à donner dans l'ordre, e = remise en €
 var PH=[{id:"c1",t:"Carte FrozenBlocks",m:["mot1","mot2","mot3","mot4","mot5"],e:15}];
