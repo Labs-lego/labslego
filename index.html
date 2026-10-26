@@ -160,7 +160,7 @@ v.addEventListener("error",function(){if(v.getAttribute("src"))$("ve").textConte
 
 // Vitrine : une carte par boîte, une ligne par référence
 var ITEMS=[];
-SETS.forEach(function(s,k){(s.r||[null]).forEach(function(x){var gi=ITEMS.length;ITEMS.push({s:s,k:k,l:x,g:(s.lots&&x)?gi:undefined});if(x)(PRIX[x]||[]).map(function(a){return {k:a[0],p:a[1]}}).forEach(function(l){ITEMS.push({s:s,k:k,l:x+" · "+f(l.k)+" 🪺",f:l.p,u:l.k,sub:1,p:gi})})})});
+SETS.forEach(function(s,k){(s.r||[null]).forEach(function(x){var gi=ITEMS.length;ITEMS.push({s:s,k:k,l:x,g:(s.lots&&x)?gi:undefined});if(x)(PRIX[x]||[]).map(function(a){return {k:a[0],p:a[1]}}).forEach(function(l){ITEMS.push({s:s,k:k,l:x+" · "+f(l.k)+"g",f:l.p,u:l.k,sub:1,p:gi})})})});
 var q=ITEMS.map(function(){return 0});
 var list=$("list");
 function ctl(m){return '<button data-k="'+m+'" data-d="-1" aria-label="Retirer">−</button><b id="q'+m+'">0</b><button data-k="'+m+'" data-d="1" aria-label="Ajouter">+</button>'}
@@ -169,7 +169,7 @@ SETS.forEach(function(s,k){
  var rows=[];ITEMS.forEach(function(it,m){if(it.k===k)rows.push(m)});
  e.innerHTML='<button class="thumb" data-v="'+k+'" style="background:'+(s.img?'url('+s.img+') center/cover,':'')+s.c+';border:0;text-shadow:0 0 6px #000;color:'+(s.c==="#f3f3f3"&&!s.img?"#222":"#fff")+'" aria-label="Voir la vidéo : '+s.n+'">'+((s.v||s.vs)?"▶":"🧱")+'</button>'+
  '<h2'+(s.r?' data-o="1" style="cursor:pointer"':'')+'>'+s.i+' '+s.n+(s.r?' <span class="chv">▴</span>':'')+'</h2><div class="ref"'+(s.r?' data-o="1" style="cursor:pointer"':'')+'>'+s.d+' · '+(s.from?'à partir de '+f(s.a)+' €':r(s.a,s.b))+'</div>'+((s.v||s.vs)?'<button class="vbtn" data-v="'+k+'">▶ '+(s.vs?'Voir les vidéos':'Voir la vidéo')+'</button>':'')+
- (s.r?'<div class="det" style="grid-column:1/-1;display:block">'+rows.map(function(m){return '<div class="lot'+(ITEMS[m].sub?' sub':'')+'" style="grid-column:1/-1'+(ITEMS[m].sub?'" data-p="'+ITEMS[m].p:'')+'"><span'+''+'>'+(ITEMS[m].sub?"↳ "+f(ITEMS[m].u)+" 🪺":ITEMS[m].l)+(ITEMS[m].f?' · <b>'+f(ITEMS[m].f)+' €</b>':'')+''+'</span><div class="qty">'+ctl(m)+'</div></div>'}).join("")+'</div>':'<div class="qty">'+ctl(rows[0])+'</div>');
+ (s.r?'<div class="det" style="grid-column:1/-1;display:block">'+rows.map(function(m){return '<div class="lot'+(ITEMS[m].sub?' sub':'')+'" style="grid-column:1/-1'+(ITEMS[m].sub?'" data-p="'+ITEMS[m].p:'')+'"><span'+''+'>'+(ITEMS[m].sub?"↳ "+f(ITEMS[m].u)+"g":ITEMS[m].l)+(ITEMS[m].f?' · <b>'+f(ITEMS[m].f)+' €</b>':'')+''+'</span><div class="qty">'+ctl(m)+'</div></div>'}).join("")+'</div>':'<div class="qty">'+ctl(rows[0])+'</div>');
  list.appendChild(e);
 });
 list.addEventListener("click",function(e){
