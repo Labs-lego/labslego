@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FrozenBlocks Lisieux</title>
 <style>
-:root{--card:#fffdf8;--ink:#3a2f1f;--muted:#8a7a60;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+:root{--card:#1f1709;--ink:#3a2f1f;--muted:#8a7a60;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 html,body{background:#0a0a0a}
 body{margin:0;padding:16px 14px 110px;color:var(--ink);font-family:-apple-system,system-ui,"Segoe UI",sans-serif}
@@ -33,6 +33,21 @@ button{border:0;border-radius:10px;background:#f2b21c;color:#111;font-size:1rem;
 #tot{flex:1;color:#fff}#tot small{display:block;color:#cfc3a0}
 #go{background:#f2b21c;color:#3a2f1f;padding:12px 18px;text-decoration:none;border-radius:10px;font-weight:700}
 .awning{background:repeating-linear-gradient(90deg,#ff7a00 0 28px,#111 28px 56px)!important}.sign{border-color:#ff7a00!important;box-shadow:0 0 18px rgba(255,122,0,.45)}h1{color:#ff7a00!important;text-shadow:0 0 14px rgba(255,122,0,.6)}.open{border-color:#b266ff!important;color:#c58cff!important}#bg{background:radial-gradient(circle at 15% 8%,#4a1f00 0,transparent 45%),radial-gradient(circle at 88% 92%,#2a0f45 0,transparent 45%),#0a0a0a!important}.hello{background:linear-gradient(135deg,#3a1500,#1a0a2a)!important;border-color:#ff7a00!important;box-shadow:0 0 24px rgba(255,122,0,.35)!important}.hello h2{color:#ff9a3c!important;font-size:1.4rem!important}.hello p{color:#e6d4ff!important}.chips span{background:rgba(178,102,255,.2)!important}.hl{font-size:2.4rem;letter-spacing:6px;margin-bottom:4px}.thumb[data-v]{animation:tp 1.8s ease-in-out infinite;font-size:30px!important;border:2px solid #fff!important}@keyframes tp{50%{transform:scale(1.08);box-shadow:0 0 18px #ff7a00}}.vbtn{grid-column:1/-1;width:100%;background:#ff7a00!important;color:#111!important;font-weight:800}
+.fid,.note{background:linear-gradient(160deg,#1f1709,#0f0b05);border:2px solid #f2b21c;color:#f6ecd4;box-shadow:0 0 20px rgba(242,178,28,.2),0 6px 0 #6b520e}
+.fid small,.note,.note p{color:#cfc3a0}
+.w{border-color:#6b520e;color:#9a8a68}
+.w.on{color:#3a2f1f}
+#pin,#gov #gpn{background:#1b1206;color:#f6ecd4;border:2px solid #6b520e}
+#pin::placeholder,#gov #gpn::placeholder{color:#9a8a68}
+#gov .gm{background:linear-gradient(160deg,#1f1709,#0f0b05);border:2px solid #f2b21c;color:#f6ecd4;box-shadow:0 0 20px rgba(242,178,28,.2),0 6px 0 #6b520e}
+#gov .gp{background:#3a2a08;color:#ffd36a}
+#gov .mc{background:#2b1640}#gov .mc.f{background:#3a2a08}#gov .mc.m{background:#173a22}
+#gov #glb small{color:#cfc3a0}
+.card,.card.lots{background:linear-gradient(160deg,#1f1709,#0f0b05)!important;color:#f6ecd4!important}
+.card h2,.card .lot span,.card .ref{color:#f6ecd4!important}
+.card .ref{color:#cfc3a0!important}
+.card .lot{border-top:1px solid #3a2e14!important}
+.card .lot.sub{background:rgba(242,178,28,.1)!important}
 </style></head><body>
 <div class="awning" aria-hidden="true"></div>
 <div class="wrap">
@@ -59,22 +74,22 @@ var CONTACT="Frozen_blokcNormandy16";
 // Pour AJOUTER un format : ajoute une paire. Pour en ENLEVER : supprime la paire.
 // Garde bien les virgules entre les paires et les crochets [ ].
 var PRIX={
- "Poulet": [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300]],
- "Boule":  [[2,16],[5.5,70],[10,110]],
- "Mouton": [[2,15],[3,20],[4.8,30],[10,60]],
- "Lapin":  [[1,12],[2,22]],
- "Blue":   [[1,16],[2.5,30],[5,70]]
+ "Jaune": [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300]],
+ "Dry73u":  [[1.2,10],[2.5,20],[5,35],[10,60]],
+ "Static plasma": [[1,15],[2.5,30],[10,130]],
+ "Amnésia":  [[1.2,10],[2.6,20]],
+ "Blue zushi":   [[1,16],[2.5,30],[5,70]]
 };
 var SETS=[
- {n:"Boîte coq",d:"2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
- {n:"Menue coqui",d:"3 références",r:["Poulet","Boule","Mouton"],a:8,b:100,from:1,c:"#7a4a2a",img:"marron.jpg",
-  vs:[["Poulet","marron-poule.mp4"],["Boule","marron-dinde.mp4"],["Mouton","marron-tortue.mp4"]],i:"🟤"},
- {n:"Menue coq",d:"2 références",r:["Lapin","Blue"],a:10,b:200,from:1,c:"#2f9e4f",img:"verte.jpg",
-  vs:[["Lapin","lapin.mp4"],["Blue","blue.mp4"]],i:"🟢"},
- {n:"poulet",d:"coq",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪"}
+ {n:"Boîte News125G",d:"2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
+ {n:"Menue Hash🇲🇦",d:"3 références",r:["Jaune","dry73u","static"],a:8,b:100,from:1,c:"#7a4a2a",img:"marron.jpg",
+  vs:[["jaune","marron-jaune.mp4"],["Dry","marron-Dry.mp4"],["Static‼️","marron-static.mp4"]],i:"🟤"},
+ {n:"Menue Weed",d:"2 références",r:["blue zushi","Blue zushi"],a:10,b:200,from:1,c:"#2f9e4f",img:"verte.jpg",
+  vs:[["Amnésia","weed.mp4"],["Blue zushi","blue-zushi.mp4"]],i:"🟢"},
+ {n:"Skieur alpin",d:"coke",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪"}
 ];
 // Cartes de fidélité : m = mots à donner dans l'ordre, e = remise en €
-var PH=[{id:"c1",t:"Carte FrozenBlocks",m:["mot1","mot2","mot3","mot4","mot5"],e:15}];
+var PH=[{id:"c1",t:"Carte FrozenBlocks",m:["la","puissance","2","fou","lisieux"],e:15}];
 // --------------------
 function $(i){return document.getElementById(i)}
 function f(x){return (Math.round(x*100)/100).toString().replace(".",",")}
@@ -153,8 +168,8 @@ SETS.forEach(function(s,k){
  var e=document.createElement("div");e.className="card";
  var rows=[];ITEMS.forEach(function(it,m){if(it.k===k)rows.push(m)});
  e.innerHTML='<button class="thumb" data-v="'+k+'" style="background:'+(s.img?'url('+s.img+') center/cover,':'')+s.c+';border:0;text-shadow:0 0 6px #000;color:'+(s.c==="#f3f3f3"&&!s.img?"#222":"#fff")+'" aria-label="Voir la vidéo : '+s.n+'">'+((s.v||s.vs)?"▶":"🧱")+'</button>'+
- '<h2'+(s.r?' data-o="1" style="cursor:pointer"':'')+'>'+s.i+' '+s.n+(s.r?' <span class="chv">▾</span>':'')+'</h2><div class="ref"'+(s.r?' data-o="1" style="cursor:pointer"':'')+'>'+s.d+' · '+(s.from?'à partir de '+f(s.a)+' €':r(s.a,s.b))+'</div>'+((s.v||s.vs)?'<button class="vbtn" data-v="'+k+'">▶ '+(s.vs?'Voir les vidéos':'Voir la vidéo')+'</button>':'')+
- (s.r?'<div class="det" style="grid-column:1/-1;display:none">'+rows.map(function(m){return '<div class="lot'+(ITEMS[m].sub?' sub':'')+'" style="grid-column:1/-1'+(ITEMS[m].sub?'" data-p="'+ITEMS[m].p:'')+'"><span'+''+'>'+(ITEMS[m].sub?"↳ "+f(ITEMS[m].u)+" 🪺":ITEMS[m].l)+(ITEMS[m].f?' · <b>'+f(ITEMS[m].f)+' €</b>':'')+''+'</span><div class="qty">'+ctl(m)+'</div></div>'}).join("")+'</div>':'<div class="qty">'+ctl(rows[0])+'</div>');
+ '<h2'+(s.r?' data-o="1" style="cursor:pointer"':'')+'>'+s.i+' '+s.n+(s.r?' <span class="chv">▴</span>':'')+'</h2><div class="ref"'+(s.r?' data-o="1" style="cursor:pointer"':'')+'>'+s.d+' · '+(s.from?'à partir de '+f(s.a)+' €':r(s.a,s.b))+'</div>'+((s.v||s.vs)?'<button class="vbtn" data-v="'+k+'">▶ '+(s.vs?'Voir les vidéos':'Voir la vidéo')+'</button>':'')+
+ (s.r?'<div class="det" style="grid-column:1/-1;display:block">'+rows.map(function(m){return '<div class="lot'+(ITEMS[m].sub?' sub':'')+'" style="grid-column:1/-1'+(ITEMS[m].sub?'" data-p="'+ITEMS[m].p:'')+'"><span'+''+'>'+(ITEMS[m].sub?"↳ "+f(ITEMS[m].u)+" 🪺":ITEMS[m].l)+(ITEMS[m].f?' · <b>'+f(ITEMS[m].f)+' €</b>':'')+''+'</span><div class="qty">'+ctl(m)+'</div></div>'}).join("")+'</div>':'<div class="qty">'+ctl(rows[0])+'</div>');
  list.appendChild(e);
 });
 list.addEventListener("click",function(e){
