@@ -53,24 +53,24 @@ var CONTACT="Frozen_blokcNormandy16";
 (function(){
 // ---- À MODIFIER ----
 // a = prix mini, b = prix maxi, v = nom EXACT du fichier vidéo (mêmes majuscules)
-// ===================== PRIX DES 🪺 (simple) =====================
+// ===================== PRIX DES grame (simple) =====================
 // Une ligne par référence. Chaque paire = [quantité, prix en €]
-// Exemple : [2,10] veut dire "2 🪺 = 10 €". Virgule des décimales = point (6.5)
+// Exemple : [2,10] veut dire "2 grame = 10 €". Virgule des décimales = point (6.5)
 // Pour AJOUTER un format : ajoute une paire. Pour en ENLEVER : supprime la paire.
 // Garde bien les virgules entre les paires et les crochets [ ].
 var PRIX={
- "Poule":          [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300]],
- "Dinde":          [[1.4,10],[3,20],[4.8,30],[10,60]],
- "Tortue":         [[2,10],[5.5,30],[10,50],[25,100],[50,180],[100,320]],
- "Lapin nain":     [[2,10],[5.5,30],[10,50],[25,100],[50,180],[100,320]],
- "Lapin papillon": [[2,16],[5.5,30],[10,50],[25,100],[50,180],[100,320]]
+ "jaune":          [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300]],
+ "dry":          [[1.4,10],[3,20],[4.8,30],[10,60]],
+ "static":         [[1,17],[2,30],[5.5,70],[10,110],[0,0],[0,0]],
+ "Amnésia":     [[1,10],[2.5,20],[4,30],[10,80],[0,0],[0,0]],
+ "Blue zushi": [[1,16],[2.5,30],[5,70],[0,0],[0,0],[0,0]]
 };
 // =================================================================
 var SETS=[
- {n:"Boîte œuf de poule",d:"2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
- {n:"🪺 Œuf crabe",d:"3 références",r:["Poule","Dinde","Tortue"],a:10,b:1500,from:1,c:"#7a4a2a",img:"marron.jpg",vs:[["Poule","marron-poule.mp4"],["Dinde","marron-dinde.mp4"],["Tortue","marron-tortue.mp4"]],i:"🟤"},
- {n:"🪺 Œuf lapin",d:"2 références",r:["Lapin nain","Lapin papillon"],from:1,a:10,b:200,c:"#2f9e4f",img:"verte.jpg",vs:[["Lapin nain","verte-nain.mp4"],["Lapin papillon","verte-papillon.mp4"]],i:"🟢"},
- {n:"Boîte caviar",d:"Œufs variés",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪"}
+ {n:"Boîte News125g",d:"2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
+ {n:"Menue hash",d:"3 références",r:["jaune","Dry45u","static plasma"],a:10,b:1500,from:1,c:"#7a4a2a",img:"marron.jpg",vs:[["Jaune","marron-poule.mp4"],["Dry","marron-dinde.mp4"],["Static","marron-tortue.mp4"]],i:"🟤"},
+ {n:"Menue weed",d:"2 références",r:["Amnésia","Blue zushi"],from:1,a:10,b:200,c:"#2f9e4f",img:"verte.jpg",vs:[["Amnesia","verte-nain.mp4"],["Lapin papillon","verte-papillon.mp4"]],i:"🟢"},
+ {n:"Caviar Alpin",d:"zipette",a:60,b:70,c:"#f3f3f3",v:"Blanche.MP4",i:"⚪"}
 ];
 // Cartes de fidélité : m = mots à donner dans l'ordre, e = remise en €
 var PH=[{id:"c1",t:"Carte FrozenBlocks",m:["mot1","mot2","mot3","mot4","mot5"],e:15}];
