@@ -54,12 +54,10 @@ var CONTACT="Frozen_blokcNormandy16";
 // ---- À MODIFIER ----
 // a = prix mini, b = prix maxi, v = nom EXACT du fichier vidéo (mêmes majuscules)
 // Lots proposés sur chaque référence 🟤 et 🟢 (k = nombre de grammes, p = prix du lot)
- var PRIX={
- "Jaune":  [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300]],
+ var lots: PRIX={
+ "Jaune":  [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300],
  "Dry90u":   [[1.2,10],[2.5,20],[5,35],[10,60]],
- "Static120u":   [[1.0,15],[2.5,30],[10,130]],
- "Amnesia":  [[1.2,10],[2.6,20]],
- "Blue zushi":   [[1,16],[2.5,30],[5,70]]
+ "Static120u":   [[1.0,15],[2.5,30],[10,130]],.{[["Amnesia":  [[1.2,10],[2.6,20]],"Blue zushi":   [[1,16],[2.5,30],[5,70]].}
 };
  var SETS=[
  {n:"Boîte œuf de poule",d:"Tous les lots rouges · 2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
@@ -120,7 +118,7 @@ if(hs){var ac=document.createElement("div");
 // Photo de vitrine : photo.jpg à côté de index.html (ignorée si absente)
 var im=new Image();im.id="ph";im.alt="";
 im.onload=function(){var s=document.querySelector(".sub");if(s)s.insertAdjacentElement("afterend",im)};
-im.src="Vitrine.jpg";
+im.src="photo.jpg";
 
 // Fenêtre vidéo
 var vm=document.createElement("div");vm.id="vm";
