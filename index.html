@@ -53,8 +53,8 @@ var CONTACT="Frozen_blokcNormandy16";
 (function(){
 // ---- À MODIFIER ----
 // a = prix mini, b = prix maxi, v = nom EXACT du fichier vidéo (mêmes majuscules)
-// Lots proposés sur chaque référence 🟤 et 🟢 (k = nombre de boîtes, p = prix du lot)
-var LOTS=[{k:2,p:10},{k:5,p:30},{k:10,p:50},{k:25,p:100},{k:50,p:180},{k:100,p:320}];
+// Lots proposés sur chaque référence 🟤 et 🟢 (k = nombre de grammes, p = prix du lot)
+var LOTS=[[5,60],[10,100],[20,180]].map(function(l){return {k:l[0],p:l[1]}});
 var SETS=[
  {n:"Boîte œuf de poule",d:"Tous les lots rouges · 2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
  {n:"Boîte d’œuf crabe",d:"3 références",r:["Poule","Dinde","Tortue"],lots:LOTS,a:10,b:1500,from:1,c:"#7a4a2a",img:"marron.jpg",vs:[["Poule","marron-poule.mp4"],["Dinde","marron-dinde.mp4"],["Tortue","marron-tortue.mp4"]],i:"🟤"},
