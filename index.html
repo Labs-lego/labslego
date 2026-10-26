@@ -54,8 +54,14 @@ var CONTACT="Frozen_blokcNormandy16";
 // ---- À MODIFIER ----
 // a = prix mini, b = prix maxi, v = nom EXACT du fichier vidéo (mêmes majuscules)
 // Lots proposés sur chaque référence 🟤 et 🟢 (k = nombre de grammes, p = prix du lot)
-var LOTS=[[5,60],[10,100],[20,180]].map(function(l){return {k:l[0],p:l[1]}});
-var SETS=[
+ var PRIX={
+ "Jaune":  [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300]],
+ "Dry90u":   [[1.2,10],[2.5,20],[5,35],[10,60]],
+ "Static120u":   [[1.0,15],[2.5,30],[10,130]],
+ "Amnesia":  [[1.2,10],[2.6,20]],
+ "Blue zushi":   [[1,16],[2.5,30],[5,70]]
+};
+ var SETS=[
  {n:"Boîte œuf de poule",d:"Tous les lots rouges · 2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
  {n:"Boîte d’œuf crabe",d:"3 références",r:["Poule","Dinde","Tortue"],lots:LOTS,a:10,b:1500,from:1,c:"#7a4a2a",img:"marron.jpg",vs:[["Poule","marron-poule.mp4"],["Dinde","marron-dinde.mp4"],["Tortue","marron-tortue.mp4"]],i:"🟤"},
  {n:"Boîte d’œuf lapin",d:"3 références",r:["Lapin nain","Lapin papillon","Lapin papillon x10"],lots:LOTS,from:1,a:10,b:200,c:"#2f9e4f",img:"verte.jpg",vs:[["Lapin nain","verte-nain.mp4"],["Lapin papillon","verte-papillon.mp4"]],i:"🟢"},
@@ -114,7 +120,7 @@ if(hs){var ac=document.createElement("div");
 // Photo de vitrine : photo.jpg à côté de index.html (ignorée si absente)
 var im=new Image();im.id="ph";im.alt="";
 im.onload=function(){var s=document.querySelector(".sub");if(s)s.insertAdjacentElement("afterend",im)};
-im.src="photo.jpg";
+im.src="Vitrine.jpg";
 
 // Fenêtre vidéo
 var vm=document.createElement("div");vm.id="vm";
