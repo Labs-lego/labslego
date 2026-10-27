@@ -375,20 +375,27 @@ border-radius:50%;width:50px;height:50px;font-size:23px;">
 (function(){
   var music = document.getElementById("fbMusic");
   var btn = document.getElementById("fbMusicBtn");
+
   music.volume = 0.35;
+
+  function updateButton(){
+    btn.textContent = music.paused ? "🎵" : "🔊";
+  }
 
   btn.onclick = function(){
     if(music.paused){
-      music.play().then(function(){
-        btn.textContent = "🔊";
-      }).catch(function(){
-        alert("Impossible de lire la musique. Vérifie Musique.mp3.");
+      music.play().then(updateButton).catch(function(){
+        alert("Appuie à nouveau pour activer la musique.");
       });
     }else{
       music.pause();
-      btn.textContent = "🎵";
+      updateButton();
     }
   };
+
+  music.play().then(updateButton).catch(function(){
+    updateButton();
+  });
 })();
 </script>
 </body>
