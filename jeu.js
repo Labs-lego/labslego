@@ -31,7 +31,7 @@ host.innerHTML='<h2 class="titre">❄️ Frozen Scooter</h2><div class="gsub">FR
 '<div class="gp">Top 10 de la semaine : 🥇 10 € · 🥈🥉 5 € · 4e à 10e 2 €</div>'+
 '<canvas id="gc" width="320" height="480"></canvas>'+
 '<div class="gi"><span>Score : <b id="gsc">0</b></span><span>Record : <b id="gbs">0</b></span><span>Essais : <b id="gtr">3</b>/3</span><button id="gmt" aria-label="Son">🔊</button></div>'+
-'<input id="gpn" type="text" maxlength="16" placeholder="Ton pseudo" aria-label="Pseudo">'+
+'<input id="gpn" type="text" maxlength="16" placeholder="Ton pseudo" aria-label="Pseudo" enterkeyhint="done" autocomplete="off">'+
 '<button id="gbtn">▶ Touche l’écran pour jouer</button><a id="gsend" href="#" target="_blank" rel="noopener">📨 Envoyer mon score</a><h3 style="margin:14px 0 4px">🏆 Classement de la semaine</h3><div id="grk"></div><ol id="glb"></ol></div>';
 
 function $(i){return document.getElementById(i)}
@@ -228,6 +228,7 @@ function flap(){
  if(state==="over"){if(left()>0)reset();return}
  if(state==="ready"){
   if(left()<=0)return;
+  if(document.activeElement===$("gpn")||Date.now()-blurAt<600){$("gpn").blur();return}
   var pn=($("gpn").value||"").trim().slice(0,16);
   if(!pn){$("gpn").focus();$("gbtn").textContent="✏️ Entre ton pseudo d’abord";return}
   if(OWN[pn.toLowerCase()]&&OWN[pn.toLowerCase()]!==K){$("gbtn").textContent="⚠️ Ce pseudo est déjà pris, change-le";return}
@@ -245,6 +246,7 @@ document.addEventListener("keydown",function(e){
  if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();flap()}
 });
 document.addEventListener("visibilitychange",function(){if(document.hidden){last=0;acc=0;if(state==="play"||state==="dead")paused=true}});
+var blurAt=0;$("gpn").addEventListener("blur",function(){blurAt=Date.now()});$("gpn").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("gpn").blur()}});
 $("gpn").addEventListener("input",function(){loadBest();if(state==="ready")$("gbtn").textContent=btnTxt()});
 
 function fx(){
