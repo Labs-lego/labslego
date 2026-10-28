@@ -507,7 +507,7 @@ function loop(ts){
  draw();raf=requestAnimationFrame(loop);
 }
 // ---------- Roue de la fortune (1 tour toutes les 25 h) ----------
-var WP=[{t:"🥶 Perdu",c:"#24356b",w:29},{t:"🍦 Boule offerte",c:"#2b7be0",w:6,v:1,img:"bic"},{t:"❄️ -10 %",c:"#4db3ff",w:16,v:1},{t:"🥶 Perdu",c:"#1b2a5c",w:29},{t:"🧊 Topping offert",c:"#1f5fc0",w:10,v:1,img:"bob"},{t:"💎 1 € de réduc",c:"#6fb7f0",w:10,v:1,img:["-1€","euro"]}];
+var WP=[{t:"🥶 Perdu",c:"#24356b",w:29},{t:"🔥 Un BIC",c:"#2b7be0",w:6,v:1,img:"bic"},{t:"❄️ -10 %",c:"#4db3ff",w:16,v:1},{t:"🥶 Perdu",c:"#1b2a5c",w:29},{t:"📦 Paquet OCB",c:"#1f5fc0",w:10,v:1,img:"bob"},{t:"💎 1 € de réduc",c:"#6fb7f0",w:10,v:1,img:["-1€","euro"]}];
 var WN=WP.length,WA=2*Math.PI/WN,WD=25*36e5,wrot=0,wspin=false;
 var wfab=document.createElement("button");wfab.id="wfab";wfab.textContent="❄️ Roue";
 var wov=document.createElement("div");wov.id="wov";
