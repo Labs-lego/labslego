@@ -70,31 +70,23 @@ var CONTACT="Frozen_blokcNormandy16";
 // a = prix mini, b = prix maxi, v = nom EXACT du fichier vidéo (mêmes majuscules)
 // ===================== PRIX DES grame (simple) =====================
 // Une ligne par référence. Chaque paire = [quantité, prix en €]
-// Exemple : [2,10] veut dire "2 piece = 10 €". Virgule des décimales = point (6.5)
+// Exemple : [2,10] veut dire "2 grame = 10 €". Virgule des décimales = point (6.5)
 // Pour AJOUTER un format : ajoute une paire. Pour en ENLEVER : supprime la paire.
 // Garde bien les virgules entre les paires et les crochets [ ].
 var PRIX={
- "Blunt BLUEBERRY BOP":  [[1,3,50]],
- "OCB Noir oficiel":  [[1,2]],
- "OCB Marron oficiel":  [[1,2]],
- "Blunt Chanvre HEMPARILLO":  [[1,3,80]],
- "Jaune":  [[2.10,10],[7.5,30],[10.50,45],[25,90],[50.50,160],[100,300]],
- "Dry90u":   [[1.2,10],[2.55,20],[6.30,40],[10,65]],
- "Static120u❌":   [[1.0,15],[2.5,30],[10,110]],
+ "Jaune":  [[2,10],[6.5,30],[10,45],[25,100],[50,160],[100,300]],
+ "Dry90u":   [[1.05,10],[2.25,20],[5,40],[10,70]],
+ "Static120u":   [[1.0,15],[2.5,30],[10,110]],
  "Amnesia":  [[1.2,10],[2.6,20]],
  "Blue zushi":   [[1,16],[2.5,30],[5,70]]
 };
- 
 var SETS=[
- {n:"Accessoires fumeurs",d:"3 références",r:["Ocb noir","OCB Marron","blunts par sachet de 4"],a:1,b:3,80,from:1,c:"#b5651d",img:"OCBnoir.jpg","OcbMarron.jpg","Blunts(01).jpg","Blunts(02).jpg","Blunts(03).jpg","Blunts(04).jpg",
-  vs:[["OCBnoir","OCBnoir.mp4"],["OcbMarron","OcbMarron.mp4"],["Blunts","Gout2Blunts.mp4"]],i:"🚬"},
- {n:"Boîte News125g",d:"2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🚬"},
- {n:"Menue Hash🇲🇦",d:"3 références",r:["Jaune","Dry90u","Static120"],a:14,b:00,from:1,c:"#b5651d",img:"Dry90u.jpg",
-  vs:[["Jaune","Jaune.mp4"],["Dry90u","Dry90u.mp4"],["❌❌","Sift.mp4"]],i:"🍫"},
+ {n:"Boîte News125g",d:"2 boîtes = 67 €",a:35,b:35,p2:3,c:"#d9332b",v:"rouge.mp4",img:"rouge.jpg",i:"🔴"},
+ {n:"Menue Hash🇲🇦",d:"3 références",r:["Jaune","Dry90u","Static120"],a:14,b:00,from:1,c:"#7a4a2a",img:"Dry90u.jpg",
+  vs:[["Jaune","Jaune.mp4"],["Dry90u","Dry90u.mp4"],["Static120u","Static120u.mp4"]],i:"🟤"},
  {n:"Menue Weed🇳🇱",d:"2 références",r:["Amnesia","Blue zushi"],a:10,b:200,from:1,c:"#2f9e4f",img:"Weed.jpg",
-  vs:[["Amnesia","Amnessia.mp4"],["Blue zushi","bluezushi.mp4"]],i:"🥦"},
- {n:"Skieur alpin❄️",d:"coke",a:60,b:70,c:"#f3f3f3",v:"skieuralpin.mp4",img:"Skieur.jpg",i:"❄️"},
- {n:"Veste Frozen Blocks",d:"80 € la pièce",a:80,b:80,p2:0,c:"#1a1a1a",v:"Veste.mp4",img:"veste.jpg",i:"🧥",t:["S","M","L","XL","XXL"]},
+  vs:[["Amnesia","Weed.mp4"],["Blue zushi","bluezushi.mp4"]],i:"🟢"},
+ {n:"Skieur alpin❄️",d:"coke",a:60,b:70,c:"#f3f3f3",v:"Blanche1.mp4",img:"Blanche.jpg",i:"⚪"}
 ];
 // Cartes de fidélité : m = mots à donner dans l'ordre, e = remise en €
 var PH=[{id:"c1",t:"Carte FrozenBlocks",m:["la","puissance","2","fou","lisieux"],e:15}];
@@ -141,7 +133,7 @@ document.body.insertBefore(bg,document.body.firstChild);
 // Accueil chaleureux + vitrine de l'Arcade
 var hs=document.querySelector(".sub");
 if(hs){var ac=document.createElement("div");
- ac.innerHTML='<div class="hello"><div class="hl" aria-hidden="true">🎃🦇👻</div><h2>Spécial Halloween</h2><p>Un coffe shop a la Snoop dog mais des prix qui ne font pas peur ! Joue à l’arcade et tente de gagner ta boîte offerte 🎁</p><div class="chips"><span>🪪 Carte de fidélité</span></div></div>'+
+ ac.innerHTML='<div class="hello"><div class="hl" aria-hidden="true">🎃🦇👻</div><h2>Spécial Halloween</h2><p>Des briques qui font peur… mais des prix qui ne font pas peur ! Joue à l’arcade et tente de gagner ta boîte offerte 🎁</p><div class="chips"><span>🪪 Carte de fidélité</span></div></div>'+
  '<div class="arc"><div class="al" aria-hidden="true">👾</div><div style="flex:1"><h3>La salle d’arcade est ouverte !</h3><p>Memory des briques : trouve les 8 paires en 23 coups. 1 essai par jour, une boîte offerte ou jusqu’à -20 % sur ta commande à gagner chaque semaine.</p><button id="playArc">▶ Jouer maintenant</button></div></div>';
  hs.insertAdjacentElement("afterend",ac);
  $("playArc").onclick=function(){var g=$("gfab");if(g)g.click()}}
@@ -222,7 +214,7 @@ rF();
 })();
 
 </script>
-<script type="text/plain">
+<script>
 // Arcade FrozenBlocks : Memory des briques. Un bouton "Arcade" ouvre le jeu par-dessus la boutique.
 // MUSIQUE : dépose un fichier "musique.mp3" à côté de index.html (modifie MUSIC_FILE ci-dessous si besoin).
 (function(){try{
@@ -367,8 +359,6 @@ start();loadLB();
 }catch(e){}})();
 
 </script>
- <script src="jeu.js?v=3"></script>
-
 <!-- Ton code actuel reste ici -->
 
 <!-- BOUTON MUSIQUE -->
@@ -386,7 +376,7 @@ border-radius:50%;width:50px;height:50px;font-size:23px;">
   var music = document.getElementById("fbMusic");
   var btn = document.getElementById("fbMusicBtn");
 
-  music.volume = 0.25;
+  music.volume = 0.35;
 
   function updateButton(){
     btn.textContent = music.paused ? "🎵" : "🔊";
