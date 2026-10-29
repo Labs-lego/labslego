@@ -1,586 +1,141 @@
-<title>Frozen Blocks Lisieux</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap">
-<style>
-[hidden]{display:none!important}
-/* Layout : une app mobile dans une colonne centrée de 480px. Barre d'onglets flottante en bas, 4 vues (Accueil, Produits, Jeux, Infos), cartes très arrondies, panneaux produits pastel façon stickers. */
-:root{
-  --bg:#07090f;
-  --surface:#10141f;
-  --surface2:#171c2b;
-  --line:rgba(255,255,255,.09);
-  --text:#f2f5fb;
-  --muted:#98a2b8;
-  --ice:#9ad8ff;
-  --gold:#f5b81c;
-  --gold-ink:#2a2008;
-  --display:"Unbounded","Arial Black",sans-serif;
-  --body:"DM Sans","Segoe UI",system-ui,sans-serif;
-  --shell:480px;
-  color-scheme:dark;
+// Frozen Blocks Lisieux : bot Telegram (Node.js 18+, aucune dépendance)
+// Commandes : /top  /gagnants  /id  /start
+
+const BOT_TOKEN = process.env.BOT_TOKEN || "COLLE_TON_TOKEN_ICI";
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID || "8868313242";
+const FB_URL = process.env.FB_URL || "https://frozenblocks-arcade-default-rtdb.europe-west1.firebasedatabase.app";
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "";
+const PORT = process.env.PORT || 3000;
+
+if (!BOT_TOKEN || BOT_TOKEN === "COLLE_TON_TOKEN_ICI") { console.error("BOT_TOKEN manquant"); process.exit(1); }
+
+// ---------- Moteur du jeu (copie exacte de jeu.js) ----------
+const W = 320, H = 480, G = 64, PW = 54, R = 11, BX = 92, STEP = 1000 / 60;
+const D0 = { s0: 2.2, sMax: 3.3, sInc: .025, g0: 150, gMin: 118, gDec: .8, jit: 100, dist: 190, jMax: 100, jInc: 0, dMin: 190, dDec: 0 };
+const D1 = { s0: 2.2, sMax: 4.5, sInc: .03, g0: 150, gMin: 98, gDec: .9, jit: 90, dist: 190, jMax: 150, jInc: 1, dMin: 150, dDec: .8 };
+const HARD_FROM = 202645;
+const PCH = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+const PRIZE = ["10 €", "5 €", "5 €", "2 €", "2 €", "2 €", "2 €", "2 €", "2 €", "2 €"];
+const RANK = ["🥇", "🥈", "🥉"];
+
+function diffFor(week) {
+  const m = /^(\d+)-S(\d+)$/.exec(week);
+  return (m && (+m[1]) * 100 + (+m[2]) >= HARD_FROM) ? D1 : D0;
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0;
-  background-image:radial-gradient(60% 40% at 50% 0%,rgba(90,170,255,.16),transparent 70%),radial-gradient(50% 30% at 100% 60%,rgba(245,184,28,.07),transparent 70%);background-repeat:no-repeat}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-h1,h2,h3,p{margin:0}
-.shell{max-width:var(--shell);margin:0 auto;padding-top:72px;padding-bottom:120px}
-h2{font-family:var(--display);font-weight:700;font-size:1.25rem;letter-spacing:-.02em;line-height:1.15;text-wrap:balance}
-h3{font-family:var(--body);font-weight:700;font-size:1rem;line-height:1.25}
-.cap{font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--ice)}
-.muted{color:var(--muted)}
-button{font-family:var(--body)}
-
-/* Barre du haut (les boutons Roue et Arcade de jeu.js se posent de chaque côté) */
-.bar{position:fixed;z-index:4;left:0;right:0;top:env(safe-area-inset-top,0px);height:64px;display:grid;place-items:center;pointer-events:none}
-.brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-weight:800;font-size:.78rem;letter-spacing:.04em}
-.brand svg{width:22px;height:22px}
-body #wfab{left:max(16px,calc(50% - 224px));top:calc(10px + env(safe-area-inset-top,0px));background:linear-gradient(135deg,#ffd964,var(--gold));color:var(--gold-ink);border:0;border-radius:999px;padding:11px 16px;font-size:.92rem;font-weight:800;box-shadow:0 6px 22px rgba(245,184,28,.45);min-height:44px}
-body #gfab{right:max(16px,calc(50% - 224px));top:calc(10px + env(safe-area-inset-top,0px));background:var(--surface2);color:#fff;border:1px solid var(--line);border-radius:999px;padding:11px 16px;font-size:.92rem;font-weight:800;box-shadow:none;min-height:44px}
-body #gcl,body #wcl{border-radius:999px}
-@media (prefers-reduced-motion:no-preference){body #wfab{animation:pulse 2s ease-out infinite}}
-@keyframes pulse{0%{box-shadow:0 6px 22px rgba(245,184,28,.45),0 0 0 0 rgba(245,184,28,.6)}70%{box-shadow:0 6px 22px rgba(245,184,28,.45),0 0 0 14px rgba(245,184,28,0)}100%{box-shadow:0 6px 22px rgba(245,184,28,.45),0 0 0 0 rgba(245,184,28,0)}}
-
-/* Vues */
-.view{display:grid;gap:30px}
-.sec{display:grid;gap:14px}
-.sechead{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.link{background:none;border:0;color:var(--ice);font-weight:700;font-size:.9rem;padding:6px 0;cursor:pointer;text-decoration:none}
-
-/* Accueil : intro */
-.intro{display:grid;gap:12px;padding-top:6px}
-.intro h1{font-family:var(--display);font-weight:800;font-size:clamp(2.3rem,12vw,3.1rem);line-height:.98;letter-spacing:-.04em}
-.intro h1 span{display:block;color:transparent;-webkit-text-stroke:1.5px var(--ice)}
-.intro p{color:var(--muted);max-width:34ch}
-.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:2px max(16px,env(safe-area-inset-left,0px))}
-.chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 16px;font-weight:700;font-size:.9rem;cursor:pointer}
-.chip.on{background:var(--text);color:var(--bg);border-color:transparent}
-.age{align-self:start;display:inline-flex;border-radius:999px;border:1px solid rgba(245,184,28,.5);color:#ffe29a;padding:5px 12px;font-weight:700;font-size:.78rem}
-
-/* Cartes jeux */
-.big{position:relative;overflow:hidden;border-radius:32px;padding:24px;display:grid;gap:12px;isolation:isolate}
-.big.wheel{background:linear-gradient(150deg,#ffcf4d,#f0a30f 70%);color:var(--gold-ink);min-height:230px;align-content:end}
-.big.wheel .cap{color:rgba(42,32,8,.7)}
-.big.wheel h2{font-size:1.6rem;max-width:9ch}
-.big.wheel p{max-width:17ch;font-weight:500;color:rgba(42,32,8,.8)}
-.big.wheel p.cap{max-width:none}
-.gfx{position:absolute;right:-96px;top:50%;width:200px;height:200px;margin-top:-100px;border-radius:50%;z-index:-1;border:6px solid #fff;
-  background:conic-gradient(#24356b 0 60deg,#2b7be0 60deg 120deg,#4db3ff 120deg 180deg,#1b2a5c 180deg 240deg,#1f5fc0 240deg 300deg,#6fb7f0 300deg 360deg);box-shadow:0 12px 40px rgba(0,0,0,.35)}
-.gfx::after{content:"";position:absolute;inset:50% auto auto 50%;width:44px;height:44px;margin:-22px;border-radius:50%;background:#fff;box-shadow:0 0 0 6px rgba(42,32,8,.9)}
-@media (prefers-reduced-motion:no-preference){.gfx{animation:spin 18s linear infinite}}
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 22px;border-radius:999px;border:0;font-weight:800;font-size:1rem;cursor:pointer;text-decoration:none;background:#fff;color:#0b0f1a}
-.btn.gold{background:var(--gold);color:var(--gold-ink)}
-.btn.dark{background:#1a1204;color:#ffd964}
-.btn.line{background:transparent;border:1px solid var(--line);color:var(--text)}
-.big.game{background:var(--surface);border:1px solid var(--line)}
-.big.game h2{font-size:1.45rem}
-.pod{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:120px;margin-top:4px}
-.pod div{flex:1;max-width:92px;border-radius:18px 18px 8px 8px;display:grid;align-content:start;justify-items:center;padding-top:10px;font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--gold-ink)}
-.pod small{font-family:var(--body);font-weight:700;font-size:.72rem;opacity:.75}
-.p1{height:100%;background:linear-gradient(#ffd964,#f0a30f)}
-.p2{height:72%;background:#d7deea}
-.p3{height:58%;background:#e0a778}
-.facts{display:grid;gap:0;margin:0;padding:0;list-style:none}
-.facts li{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:baseline;padding:14px 0;border-top:1px solid var(--line)}
-.facts b{font-family:var(--display);font-weight:800;color:var(--ice);font-size:1.15rem}
-.facts span{color:var(--muted)}
-
-/* Produits */
-.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:2px max(16px,env(safe-area-inset-left,0px)) 4px}
-.rail::-webkit-scrollbar{display:none}
-.rail .pc{flex:none;width:168px;scroll-snap-align:start}
-.mason{columns:2;column-gap:12px}
-.mason .pc{break-inside:avoid;margin-bottom:16px}
-.pc{display:grid;gap:8px;min-width:0}
-.pc .pic{border-radius:28px;padding:12px;display:grid;place-items:center;overflow:hidden}
-.pc .pic img{display:block;width:100%;height:auto;mix-blend-mode:multiply}
-.pc h3{padding:0 6px;font-size:.92rem}
-.price{justify-self:start;margin:2px 6px 0;background:var(--gold);color:var(--gold-ink);font-weight:800;font-size:.9rem;border-radius:999px;padding:4px 12px}
-.pc small.lot{color:var(--ice);font-weight:700;margin-top:0}
-.pc small{display:block;padding:0 6px;color:var(--muted);font-size:.78rem;font-weight:500;margin-top:-4px}
-
-/* Photo d'accueil */
-.hero{border-radius:32px;overflow:hidden;aspect-ratio:16/10;background:#0e1530;box-shadow:0 16px 40px rgba(0,0,0,.45)}
-.hero img{display:block;width:100%;height:100%;object-fit:cover;object-position:72% 50%}
-
-/* Boutique */
-.shopcard{position:relative;border-radius:32px;overflow:hidden;aspect-ratio:1/1;background:#000;isolation:isolate}
-.shopcard img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% 50%;z-index:-1}
-.shopcard::after{content:"";position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(transparent,rgba(0,0,0,.88));z-index:0;pointer-events:none}
-.shopcard .txt{position:absolute;left:20px;right:20px;bottom:20px;z-index:1;display:grid;gap:10px;justify-items:start}
-.shopcard h2{font-size:1.4rem}
-
-/* Veste */
-.vid{position:relative;border-radius:32px;overflow:hidden;aspect-ratio:1/1;background:#000;isolation:isolate}
-.vid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1}
-.vid::after{content:"";position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(transparent,rgba(0,0,0,.85));z-index:0;pointer-events:none}
-.vid .txt{position:absolute;left:20px;right:20px;bottom:18px;z-index:1;display:grid;gap:4px}
-.vid h2{font-size:1.3rem}
-.vid p{color:#d3d9e6;font-size:.9rem}
-.feat{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
-.feat li{border-radius:999px;background:var(--surface2);padding:8px 14px;font-weight:700;font-size:.84rem}
-
-/* Infos */
-.rows{display:grid;gap:10px}
-.row{display:grid;background:var(--surface);border-radius:28px;overflow:hidden;min-width:0}
-.row .tx{padding:14px 18px 16px}
-.thumb{width:100%;aspect-ratio:16/10;background:linear-gradient(135deg,#1a2a63,#0e1530);display:grid;place-items:center;position:relative;overflow:hidden;font-family:var(--display);font-weight:800;color:rgba(154,216,255,.7)}
-.thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.row p{color:var(--muted);font-size:.88rem}
-.contact{background:var(--surface);border-radius:32px;padding:24px;display:grid;gap:14px}
-.handle{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface2);border-radius:999px;padding:6px 6px 6px 18px;font-weight:700;min-width:0}
-.handle code{font-family:var(--body);overflow-wrap:anywhere;user-select:all}
-.handle button{flex:none;border:0;border-radius:999px;background:var(--text);color:var(--bg);font-weight:800;padding:10px 16px;cursor:pointer}
-.legal{color:var(--muted);font-size:.78rem;text-align:center;padding:0 8px}
-
-/* Offres */
-.deals{position:absolute;left:10px;top:10px;display:grid;gap:5px;justify-items:start}
-.deal{background:#ff4d4f;color:#fff;font-weight:800;font-size:.78rem;line-height:1;padding:7px 11px;border-radius:999px;box-shadow:0 6px 14px rgba(255,77,79,.45)}
-.deal-banner{display:grid;gap:4px;text-align:left;width:100%;border:0;border-radius:28px;padding:18px 22px;background:linear-gradient(135deg,#ff5a5f,#ff8a4c);color:#fff;font-family:var(--body);cursor:pointer;box-shadow:0 12px 30px rgba(255,77,79,.3)}
-.deal-banner .cap{color:rgba(255,255,255,.85)}
-.deal-banner b{font-family:var(--display);font-weight:800;font-size:1.25rem;letter-spacing:-.02em;line-height:1.15}
-.deal-banner span:last-child{font-weight:700}
-
-/* Catégories */
-.catmenu{display:grid;gap:14px}
-.cat{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:12px;border:0;border-radius:32px;padding:22px 20px 22px 24px;min-height:150px;text-align:left;cursor:pointer;color:#10141f;font-family:var(--body)}
-.cat h3{font-family:var(--display);font-weight:700;font-size:1.25rem;letter-spacing:-.02em;line-height:1.1}
-.cat small{display:block;margin-top:6px;font-weight:700;opacity:.65}
-.cat img{width:46%;max-width:180px;height:auto;mix-blend-mode:multiply;flex:none}
-.back{justify-self:start;background:var(--surface2);color:var(--text);border:0;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer;min-height:44px}
-
-/* Commande */
-.pic{position:relative}
-.add{position:absolute;right:10px;bottom:10px;width:44px;height:44px;border-radius:50%;border:0;background:var(--gold);color:var(--gold-ink);font-size:1.6rem;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.25);display:grid;place-items:center;padding:0}
-.ctl{position:absolute;right:10px;bottom:10px}
-.ctl .add{position:static}
-.step{display:flex;align-items:center;gap:2px;background:var(--gold);color:var(--gold-ink);border-radius:999px;padding:3px;box-shadow:0 6px 16px rgba(0,0,0,.25)}
-.step button{width:38px;height:38px;border-radius:50%;border:0;background:rgba(42,32,8,.14);color:var(--gold-ink);font-size:1.3rem;font-weight:800;cursor:pointer;padding:0}
-.step span{min-width:1.6em;text-align:center;font-weight:800}
-.cartbar{position:fixed;z-index:7;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));width:min(calc(100% - 32px),440px);min-height:52px;border:0;border-radius:999px;background:var(--gold);color:var(--gold-ink);font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:space-between;padding:0 22px;cursor:pointer;box-shadow:0 12px 30px rgba(245,184,28,.4)}
-body.hascart .shell{padding-bottom:180px}
-.sheet{position:fixed;inset:0;z-index:15;display:flex;align-items:flex-end;justify-content:center}
-.sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.6)}
-.panel{position:relative;width:100%;max-width:var(--shell);max-height:92%;overflow-y:auto;background:var(--surface);border-radius:32px 32px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom,0px));display:grid;gap:16px;margin:0 auto}
-.panel .top{display:flex;align-items:center;justify-content:space-between}
-.x{width:44px;height:44px;border-radius:50%;border:0;background:var(--surface2);color:var(--text);font-size:1.1rem;cursor:pointer}
-.line-i{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center}
-.line-i .th{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;overflow:hidden}
-.line-i .th img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply}
-.line-i b{display:block;font-size:.92rem}
-.line-i small{color:var(--muted)}
-.qty{display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:999px;padding:3px}
-.qty button{width:34px;height:34px;border-radius:50%;border:0;background:var(--bg);color:var(--text);font-size:1.1rem;font-weight:800;cursor:pointer}
-.qty span{min-width:1.4em;text-align:center;font-weight:800}
-.total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);padding-top:14px;font-weight:700}
-.total b{font-family:var(--display);font-size:1.2rem}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface2);border-radius:999px;padding:5px}
-.seg button{border:0;border-radius:999px;background:transparent;color:var(--muted);font-weight:800;min-height:44px;cursor:pointer}
-.seg button.on{background:var(--text);color:var(--bg)}
-.fld{display:grid;gap:6px;font-weight:700;font-size:.85rem;color:var(--muted)}
-.fld input,.fld select,.fld textarea{font-family:var(--body);font-size:16px;color:var(--text);background:var(--surface2);border:1px solid transparent;border-radius:18px;padding:13px 16px;width:100%}
-.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--ice)}
-.chk{display:flex;gap:12px;align-items:flex-start;font-size:.9rem}
-.chk input{width:22px;height:22px;margin-top:1px;accent-color:var(--gold);flex:none}
-.hint{font-size:.82rem;color:var(--muted)}
-.err{color:#ff9a9a;font-weight:700;font-size:.88rem;min-height:1.2em}
-.btn[aria-disabled="true"]{opacity:.45}
-.toast{position:fixed;z-index:30;left:50%;transform:translateX(-50%);top:calc(16px + env(safe-area-inset-top,0px));width:min(calc(100% - 32px),440px);background:var(--gold);color:var(--gold-ink);font-weight:800;border-radius:24px;padding:16px 20px;box-shadow:0 12px 30px rgba(0,0,0,.45)}
-
-/* Barre d'onglets flottante */
-.tabs{position:fixed;z-index:6;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(calc(100% - 32px),440px);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;border-radius:999px;background:rgba(23,28,43,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,.55)}
-.tabs a{display:grid;justify-items:center;gap:2px;padding:8px 0 7px;border-radius:999px;color:var(--muted);text-decoration:none;font-size:.7rem;font-weight:700}
-.tabs svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.tabs a.on{background:var(--text);color:var(--bg)}
-/* Bouton musique */
-.mbtn{position:fixed;z-index:5;right:max(16px,calc(50% - 224px));top:calc(70px + env(safe-area-inset-top,0px));width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(23,28,43,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--text);font-size:1.2rem;line-height:1;display:grid;place-items:center;padding:0;cursor:pointer}
-@media (max-width:440px){.brand span{display:none}}
-@media (prefers-reduced-motion:no-preference){.view:not([hidden]){animation:in .35s ease both}}
-@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-</style>
-
-<div class="bar"><div class="brand">
-  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 20 9 5l4 7 3-4 8 12z" fill="#9ad8ff"/><path d="M9 5l2.2 4.2L9 11 6.8 9.2z" fill="#07090f" opacity=".35"/></svg>
-  <span>FROZEN BLOCKS</span>
-</div></div>
-
-<main class="shell">
-
-<!-- ACCUEIL -->
-<div class="view" id="v-accueil">
-  <div class="hero">
-    <img src="img/accueil.jpg" alt="La boutique Frozen Blocks à Lisieux, enseigne bleue lumineuse sur la place" fetchpriority="high"
-      onerror="var f=['img/accueil.jpeg','img/accueil.png','img/accueil.webp'],i=+(this.dataset.i||0);if(i<f.length){this.dataset.i=i+1;this.src=f[i]}else{this.onerror=null;this.src='img/boutique.webp'}">
-  </div>
-  <div class="intro">
-    <p class="cap">Lisieux · Normandie</p>
-    <h1>Frozen<br>Blocks <span>Lisieux</span></h1>
-    <p>Feuilles à rouler, feuilles de chanvre, briquets, la veste maison. Et de quoi jouer pour gagner.</p>
-    <span class="age">Réservé aux 18 ans et plus</span>
-  </div>
-
-  <button class="deal-banner" type="button" id="dealb" hidden>
-    <span class="cap">Bon plan</span>
-    <b id="dealt"></b>
-    <span id="deals2"></span>
-  </button>
-
-  <div class="sec">
-    <div class="sechead"><h2>En boutique</h2><a class="link" href="#produits">Tout voir</a></div>
-    <div class="rail" id="rail"></div>
-  </div>
-
-  <div class="sec">
-    <div class="vid">
-      <video src="veste.mp4" autoplay muted loop playsinline aria-label="La veste Frozen Blocks, de face, de dos et de côté"></video>
-      <div class="txt"><p class="cap">Collection</p><h2>La veste Frozen Blocks</h2><p>Légère, coupe-vent, déperlante. Logo brodé.</p></div>
-    </div>
-    <ul class="feat"><li>Capuche ajustable</li><li>Fermetures étanches</li><li>Poches intérieures</li><li>Mi-saison / hiver</li></ul>
-  </div>
-
-  <div class="big game">
-    <p class="cap">Arcade</p>
-    <h2>Frozen Scooter</h2>
-    <p class="muted">Passe entre les blocs de glace. Tes points s’additionnent toute la semaine.</p>
-    <div class="pod" aria-label="Récompenses : 1er 10 €, 2e et 3e 5 €"><div class="p2">5 €<small>2e</small></div><div class="p1">10 €<small>1er</small></div><div class="p3">5 €<small>3e</small></div></div>
-    <button class="btn gold" type="button" data-act="play">Jouer maintenant</button>
-  </div>
-</div>
-
-<!-- PRODUITS -->
-<div class="view" id="v-produits" hidden>
-  <div class="intro"><p class="cap">Au comptoir</p><h1 style="font-size:2rem">Produits</h1><p>Choisis un rayon.</p></div>
-  <div id="catmenu" class="catmenu"></div>
-  <div id="catview" class="sec" hidden><button class="back" type="button" id="back">← Catégories</button><h2 id="cattitle"></h2><div class="mason" id="catlist"></div></div>
-</div>
-
-<!-- JEUX -->
-<div class="view" id="v-jeux" hidden>
-  <div class="intro"><p class="cap">Gratuit</p><h1 style="font-size:2rem">Jeux</h1><p>Deux façons de gagner, sans rien acheter.</p></div>
-
-  <div class="big wheel">
-    <div class="gfx" aria-hidden="true"></div>
-    <p class="cap">1 tour toutes les 25 h</p>
-    <h2>La Roue Glacée</h2>
-    <p>Reviens chaque jour pour un nouveau tour.</p>
-    <div><button class="btn dark" type="button" data-act="wheel">Tourner la roue</button></div>
-  </div>
-
-  <div class="big game">
-    <p class="cap">Classement de la semaine</p>
-    <h2>Frozen Scooter</h2>
-    <div class="pod" aria-label="Récompenses : 1er 10 €, 2e et 3e 5 €"><div class="p2">5 €<small>2e</small></div><div class="p1">10 €<small>1er</small></div><div class="p3">5 €<small>3e</small></div></div>
-    <p class="muted" style="text-align:center">De la 4e à la 10e place : 2 €</p>
-    <ul class="facts">
-      <li><b>5</b><span>essais, renouvelés toutes les 20 h</span></li>
-      <li><b>1 pt</b><span>par passage entre deux tours de glace</span></li>
-      <li><b>Top 10</b><span>récompensé, classement remis à zéro chaque semaine</span></li>
-    </ul>
-    <button class="btn gold" type="button" data-act="play">Lancer la partie</button>
-  </div>
-</div>
-
-<!-- INFOS -->
-<div class="view" id="v-infos" hidden>
-  <div class="intro"><p class="cap">Nous trouver</p><h1 style="font-size:2rem">Boutiques</h1></div>
-  <div class="rows" id="shops"></div>
-
-  <div class="contact">
-    <p class="cap">Contact</p>
-    <h2>Une question ?</h2>
-    <p class="muted">Stocks, prix, score à envoyer : le plus rapide est Telegram.</p>
-    <div class="handle"><code id="tg">@Frozen_blokcNormandy16</code><button type="button" id="cp">Copier</button></div>
-    <a class="btn gold" href="https://t.me/Frozen_blokcNormandy16" target="_blank" rel="noopener">Ouvrir Telegram</a>
-  </div>
-  <p class="legal">Réservé aux adultes. Fumer nuit gravement à la santé. Le jeu Arcade est un jeu d’adresse sans achat obligatoire.</p>
-</div>
-
-</main>
-
-<button class="cartbar" id="cartbar" type="button" hidden><span id="cbn">Ma commande</span><span id="cbt"></span></button>
-
-<div class="sheet" id="sheet" hidden>
-  <div class="sheet-bg" id="sbg"></div>
-  <div class="panel" role="dialog" aria-modal="true" aria-label="Ma commande">
-    <div class="top"><h2>Ma commande</h2><button class="x" type="button" id="sx" aria-label="Fermer">✕</button></div>
-    <div id="lines" style="display:grid;gap:12px"></div>
-    <div class="total"><span>Total</span><b id="tot">0 €</b></div>
-
-    <div class="seg" role="group" aria-label="Mode de réception">
-      <button type="button" id="m-pick" class="on">Retrait en boutique</button>
-      <button type="button" id="m-deliv">Livraison</button>
-    </div>
-    <label class="fld" id="f-pick">Boutique de retrait<select id="shopsel"></select></label>
-    <div id="f-deliv" hidden style="display:grid;gap:12px">
-      <label class="fld">Adresse de livraison<input id="adr" type="text" autocomplete="street-address" placeholder="Numéro, rue, code postal, ville"></label>
-      <label class="fld">Téléphone<input id="tel" type="tel" autocomplete="tel" placeholder="06 00 00 00 00"></label>
-    </div>
-    <label class="fld">Ton prénom<input id="nom" type="text" autocomplete="given-name" placeholder="Prénom"></label>
-    <label class="fld">Ton pseudo Telegram ou ton numéro<input id="ctc" type="text" autocomplete="off" placeholder="@pseudo ou 06 00 00 00 00"></label>
-    <label class="fld">Paiement à la remise<select id="pay"><option value="Espèces">Espèces</option><option value="Carte bancaire">Carte bancaire</option></select></label>
-    <label class="fld">Un mot pour nous (facultatif)<input id="note" type="text" placeholder="Ex. je passe vers 18 h"></label>
-    <label class="chk"><input id="age" type="checkbox"><span>Je confirme avoir 18 ans ou plus.</span></label>
-    <div class="err" id="err" role="alert"></div>
-    <a class="btn gold" id="send" href="#" target="_blank" rel="noopener">Envoyer ma commande</a>
-    <button class="btn line" type="button" id="copyo">Copier la commande</button>
-    <p class="hint">Ta commande nous est envoyée directement. On te répond en message privé pour confirmer, puis tu paies à la remise (retrait ou livraison).</p>
-  </div>
-</div>
-
-<audio id="mus" src="Musique.mp4" preload="auto" loop></audio>
-<button class="mbtn" id="mbtn" type="button" aria-label="Activer la musique" aria-pressed="false">🔇</button>
-
-<nav class="tabs" aria-label="Navigation">
-  <a href="#accueil" data-t="accueil"><svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Accueil</a>
-  <a href="#produits" data-t="produits"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Produits</a>
-  <a href="#jeux" data-t="jeux"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.4 6.4M12 12H3"/></svg>Jeux</a>
-  <a href="#infos" data-t="infos"><svg viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Infos</a>
-</nav>
-
-<script>
-(function(){
-  // Pour chaque produit : [catégorie, nom, détail, image, couleur du fond, PRIX, LOTS]. Prix entre guillemets, ex. "1,50 €". LOTS (facultatif) : [[2,3.4],[5,8]] veut dire lot de 2 à 3,40 € et lot de 5 à 8 €.
-  var PR=[
-    ["Papiers","OCB Premium Slim","Noir et argent","ocb-premium","#dfe4ee","2 €",[[2,3.4],[5,6],[15,10]]],
-    ["Chanvre","Hemparillo Fraise","4 feuilles, sans tabac","strawberry","#ffd5d8","3,80 €"],
-    ["Papiers","OCB Virgin Slim","Papier non blanchi","ocb-virgin","#f1dfc9","2 €"],
-    ["Chanvre","Hemparillo Myrtille","4 feuilles, sans tabac","blueberry-pack","#d3e2ff","3,80 €"],
-    ["Briquets","BIC Mini","Le bleu classique","bic","#dbe7ff",""],
-    ["Chanvre","Hemparillo Fruits rouges","4 feuilles, sans tabac","berries","#f2d2ec","3,80 €"],
-    ["Papiers","OCB Premium Slim, boîte","La boîte magnétique","ocb-box","#e4e8f0","2 €",[[2,3.4],[5,6],[15,10]]],
-    ["Chanvre","Hemparillo Myrtille","Version illustrée","blueberry","#dde5ff","3,80 €"],
-    ["Briquets","Étuis couleurs","Quatre coloris","etuis","#e9def7",""]
-  ];
-  var TITRES={"Papiers":"Feuilles à rouler","Chanvre":"Feuilles de chanvre","Briquets":"Briquets"};
-  var syncs=[],cart={};
-  // Image produit : essaie .webp puis .jpg, .jpeg, .png
-  function pimg(name){var im=new Image(),ex=[".jpg",".jpeg",".png"],n=0;im.onerror=function(){if(n<ex.length){im.src="img/"+name+ex[n++]}};im.src="img/"+name+".webp";return im}
-  function unitP(r){var v=parseFloat(String(r[5]).replace(",","."));return isNaN(v)?null:v}
-  function eur(v){return v.toFixed(2).replace(".",",")+" €"}
-  // Meilleur prix pour q unités en combinant l'unité et les lots
-  function lineCost(r,q){
-    var u=unitP(r);if(u===null)return null;
-    var k=r[6]||[],c=[0],i,j;
-    for(i=1;i<=q;i++){c[i]=c[i-1]+u;for(j=0;j<k.length;j++)if(i>=k[j][0])c[i]=Math.min(c[i],c[i-k[j][0]]+k[j][1])}
-    return Math.round(c[q]*100)/100;
-  }
-  function card(r){
-    var a=document.createElement("article");a.className="pc";
-    var p=document.createElement("div");p.className="pic";p.style.background=r[4];
-    var im=pimg(r[3]);im.alt=r[1];im.loading="lazy";p.appendChild(im);
-    var ctl=document.createElement("div");ctl.className="ctl";p.appendChild(ctl);
-    if(r[6]&&r[6].length){var dl=document.createElement("div");dl.className="deals";
-      r[6].forEach(function(t){var d=document.createElement("span");d.className="deal";d.textContent="Lot de "+t[0]+" : "+eur(t[1]);dl.appendChild(d)});p.appendChild(dl)}
-    var idx=PR.indexOf(r);
-    function sync(){
-      var q=cart[idx]||0;ctl.innerHTML="";
-      if(!q){
-        var ad=document.createElement("button");ad.type="button";ad.className="add";ad.textContent="+";ad.setAttribute("aria-label","Ajouter "+r[1]+" à la commande");
-        ad.onclick=function(){add(idx)};ctl.appendChild(ad);
-      }else{
-        var st=document.createElement("div");st.className="step";
-        var m=document.createElement("button");m.type="button";m.textContent="−";m.setAttribute("aria-label","Retirer un "+r[1]);m.onclick=function(){less(idx)};
-        var n=document.createElement("span");n.textContent=q;
-        var pl=document.createElement("button");pl.type="button";pl.textContent="+";pl.setAttribute("aria-label","Ajouter un "+r[1]);pl.onclick=function(){add(idx)};
-        st.appendChild(m);st.appendChild(n);st.appendChild(pl);ctl.appendChild(st);
-      }
-    }
-    syncs.push(sync);sync();
-    var h=document.createElement("h3");h.textContent=r[1];
-    var s=document.createElement("small");s.textContent=r[2];
-    a.appendChild(p);a.appendChild(h);a.appendChild(s);
-    if(r[5]){var pr=document.createElement("span");pr.className="price";pr.textContent=r[5];a.appendChild(pr)}
-    (r[6]||[]).forEach(function(t){var lt=document.createElement("small");lt.className="lot";var sv=Math.round((t[0]*unitP(r)-t[1])*100)/100;lt.textContent=(sv>0?"Tu économises "+eur(sv):"Lot de "+t[0]);a.appendChild(lt)});
-    return a;
-  }
-  var rail=document.getElementById("rail");
-  [PR[1],PR[0],PR[4],PR[3],PR[5],PR[2]].forEach(function(r){rail.appendChild(card(r))});
-
-  var CATS=[["Papiers","Feuilles à rouler","#dfe4ee","ocb-premium"],["Chanvre","Feuilles de chanvre","#ffd5d8","strawberry"],["Briquets","Briquets","#dbe7ff","bic"]];
-  var cm=document.getElementById("catmenu"),cv=document.getElementById("catview");
-  CATS.forEach(function(c){
-    var n=PR.filter(function(r){return r[0]===c[0]}).length;
-    var b=document.createElement("button");b.type="button";b.className="cat";b.style.background=c[2];
-    var t=document.createElement("div");var h=document.createElement("h3");h.textContent=c[1];var sm=document.createElement("small");sm.textContent=n+(n>1?" produits":" produit");t.appendChild(h);t.appendChild(sm);
-    var im=pimg(c[3]);im.alt="";
-    b.appendChild(t);b.appendChild(im);b.onclick=function(){openCat(c)};cm.appendChild(b);
-  });
-  function openCat(c){
-    document.getElementById("cattitle").textContent=c[1];
-    var l=document.getElementById("catlist");l.innerHTML="";
-    PR.filter(function(r){return r[0]===c[0]}).forEach(function(r){l.appendChild(card(r))});
-    cm.hidden=true;cv.hidden=false;window.scrollTo(0,0);
-  }
-  var go=null;
-  (function(){
-    var r=PR.filter(function(x){return x[6]&&x[6].length})[0];if(!r)return;
-    document.getElementById("dealt").textContent=r[1].replace(/, boîte$/,"")+" à "+r[5];
-    document.getElementById("deals2").textContent=r[6].map(function(t){return "Lot de "+t[0]+" : "+eur(t[1])}).join("  ·  ");
-    var b=document.getElementById("dealb");b.hidden=false;b.onclick=function(){go=CATS[0];location.hash="#produits"};
-  })();
-  function showMenu(){cm.hidden=false;cv.hidden=true}
-  document.getElementById("back").onclick=function(){showMenu();window.scrollTo(0,0)};
-
-  // À renseigner : une entrée par boutique.
-  var SH=[["Secteur Victor Hugo","img/shop-victor-hugo.webp"],["Secteur Lycée Gambier","img/shop-gambier.webp"],["Secteur Mitterrand centre-ville","img/boutique.webp"],["Secteur Hauteville","img/shop-hauteville.webp"],["Secteur Lycée Cornu","img/shop-cornu.webp"]];
-  var box=document.getElementById("shops");
-  SH.forEach(function(s,k){
-    var r=document.createElement("div");r.className="row";
-    var t=document.createElement("div");t.className="thumb";t.textContent=String(k+1);
-    var im=new Image();im.alt="Boutique "+s[0];var base=s[1].replace(/\.\w+$/,""),ex=[".jpg",".jpeg",".png"],n=0;im.onerror=function(){if(n<ex.length){im.src=base+ex[n++]}else{im.remove()}};im.src=s[1];t.appendChild(im);
-    var d=document.createElement("div");d.className="tx";
-    var h=document.createElement("h3");h.textContent=s[0];
-    var p=document.createElement("p");p.textContent="Adresse et horaires à renseigner";
-    d.appendChild(h);d.appendChild(p);r.appendChild(t);r.appendChild(d);box.appendChild(r);
-  });
-
-  // ---------- Commande ----------
-  var TG="Frozen_blokcNormandy16";   // compte Telegram (secours si l'envoi automatique échoue)
-  var ORDER_URL="";   // adresse du Worker Cloudflare (voir worker.js). Vide = ancien mode : Telegram s'ouvre avec la commande écrite
-  var mode="pick";
-  function num(r){return unitP(r)}
-  function $i(i){return document.getElementById(i)}
-  function add(i){cart[i]=(cart[i]||0)+1;paint()}
-  function less(i){cart[i]--;if(cart[i]<=0)delete cart[i];if(!Object.keys(cart).length)closeS();paint()}
-  function totals(){var t=0,n=0,unk=false;Object.keys(cart).forEach(function(k){var q=cart[k],v=lineCost(PR[k],q);n+=q;if(v===null)unk=true;else t+=v});return{t:t,n:n,unk:unk}}
-  function totTxt(x){return eur(x.t)+(x.unk?" + à confirmer":"")}
-  function paint(){
-    var x=totals(),has=x.n>0;
-    $i("cartbar").hidden=!has||!$i("sheet").hidden;document.body.classList.toggle("hascart",has);
-    $i("cbn").textContent="Ma commande · "+x.n+(x.n>1?" articles":" article");$i("cbt").textContent=totTxt(x);
-    var L=$i("lines");L.innerHTML="";
-    Object.keys(cart).forEach(function(k){
-      var r=PR[k],q=cart[k],row=document.createElement("div");row.className="line-i";
-      var th=document.createElement("div");th.className="th";th.style.background=r[4];var im=pimg(r[3]);im.alt="";th.appendChild(im);
-      var d=document.createElement("div");var b=document.createElement("b");b.textContent=r[1];var sm=document.createElement("small");var v=lineCost(r,q);sm.textContent=v===null?"Prix à confirmer":eur(v);d.appendChild(b);d.appendChild(sm);
-      var qt=document.createElement("div");qt.className="qty";
-      var m=document.createElement("button");m.type="button";m.textContent="−";m.setAttribute("aria-label","Retirer un");m.onclick=function(){less(k)};
-      var sp=document.createElement("span");sp.textContent=q;
-      var pl=document.createElement("button");pl.type="button";pl.textContent="+";pl.setAttribute("aria-label","Ajouter un");pl.onclick=function(){cart[k]++;paint()};
-      qt.appendChild(m);qt.appendChild(sp);qt.appendChild(pl);
-      row.appendChild(th);row.appendChild(d);row.appendChild(qt);L.appendChild(row);
-    });
-    $i("tot").textContent=totTxt(x);
-    $i("send").href=link();
-    syncs.forEach(function(f){f()});
-  }
-  function msg(){
-    var x=totals(),l=["🛒 Nouvelle commande Frozen Blocks",""];
-    Object.keys(cart).forEach(function(k){var r=PR[k],v=lineCost(r,cart[k]);l.push(cart[k]+" × "+r[1]+" — "+(v===null?"prix à confirmer":eur(v)))});
-    l.push("","Total : "+totTxt(x),"");
-    if(mode==="pick"){l.push("Retrait en boutique : "+$i("shopsel").value)}
-    else{l.push("Livraison","Adresse : "+$i("adr").value.trim(),"Téléphone : "+$i("tel").value.trim())}
-    l.push("Prénom : "+$i("nom").value.trim());
-    l.push("Contact : "+$i("ctc").value.trim());
-    l.push("Paiement à la remise : "+$i("pay").value);
-    if($i("note").value.trim())l.push("Note : "+$i("note").value.trim());
-    l.push("","Je confirme avoir 18 ans ou plus.");
-    return l.join("\n");
-  }
-  function link(){return "https://t.me/"+TG+"?text="+encodeURIComponent(msg())}
-  function check(){
-    if(!Object.keys(cart).length)return "Ta commande est vide.";
-    if(!$i("nom").value.trim())return "Indique ton prénom.";
-    if(!$i("ctc").value.trim())return "Indique ton pseudo Telegram ou ton numéro pour qu’on te réponde.";
-    if(mode==="deliv"&&(!$i("adr").value.trim()||!$i("tel").value.trim()))return "Indique l’adresse et le téléphone pour la livraison.";
-    if(!$i("age").checked)return "Confirme que tu as 18 ans ou plus.";
-    return "";
-  }
-  function openS(){$i("sheet").hidden=false;$i("cartbar").hidden=true;paint()}
-  function closeS(){$i("sheet").hidden=true;paint()}
-  function setMode(m){mode=m;$i("m-pick").classList.toggle("on",m==="pick");$i("m-deliv").classList.toggle("on",m==="deliv");$i("f-pick").hidden=m!=="pick";$i("f-deliv").hidden=m!=="deliv";paint()}
-  SH.forEach(function(s){var o=document.createElement("option");o.textContent=s[0];o.value=s[0];$i("shopsel").appendChild(o)});
-  $i("cartbar").onclick=openS;$i("sx").onclick=closeS;$i("sbg").onclick=closeS;
-  $i("m-pick").onclick=function(){setMode("pick")};$i("m-deliv").onclick=function(){setMode("deliv")};
-  ["shopsel","adr","tel","nom","ctc","pay","note","age"].forEach(function(id){$i(id).addEventListener("input",function(){$i("err").textContent="";paint()});$i(id).addEventListener("change",paint)});
-  function toast(t){var d=document.createElement("div");d.className="toast";d.setAttribute("role","status");d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},7000)}
-  $i("send").onclick=function(e){
-    var er=check();
-    if(er){e.preventDefault();$i("err").textContent=er;return}
-    if(!ORDER_URL)return;           // ancien mode : le lien Telegram s'ouvre
-    e.preventDefault();
-    var b=this;if(b.dataset.busy)return;
-    b.dataset.busy="1";b.textContent="Envoi en cours…";
-    fetch(ORDER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text:msg()})})
-      .then(function(r){
-        if(!r.ok)throw new Error("send");
-        cart={};closeS();
-        toast("Commande envoyée ✅ On te répond en message privé pour confirmer.");
-      })
-      .catch(function(){
-        $i("err").textContent="Envoi impossible. Telegram s’ouvre : appuie sur Envoyer pour transmettre ta commande.";
-        window.open(link(),"_blank","noopener");
-      })
-      .then(function(){delete b.dataset.busy;b.textContent="Envoyer ma commande"});
+function mk(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
-  $i("copyo").onclick=function(){
-    var er=check(),b=this;if(er){$i("err").textContent=er;return}
-    function fb(){b.textContent="Sélectionne et copie dans Telegram"}
-    try{navigator.clipboard.writeText(msg()).then(function(){b.textContent="Commande copiée"},fb)}catch(e){fb()}
-    setTimeout(function(){b.textContent="Copier la commande"},2200);
-  };
-  paint();
+}
+function hit(y, rx, ry, rw, rh) {
+  const cx = Math.max(rx, Math.min(BX, rx + rw)), cy = Math.max(ry, Math.min(y, ry + rh));
+  const dx = BX - cx, dy = y - cy;
+  return dx * dx + dy * dy < R * R;
+}
+function Core(seed, D) {
+  this.D = D; this.rnd = mk(seed); this.by = 230; this.bv = 0; this.pipes = [];
+  this.score = 0; this.spd = D.s0; this.gap = D.g0; this.f = 0;
+}
+Core.prototype.tick = function (fl) {
+  const s = this, D = s.D;
+  let i, p, gb, lp;
+  if (fl) s.bv = -6.9;
+  s.bv += .42; s.by += s.bv; s.f++;
+  s.spd = Math.min(D.sMax, D.s0 + s.score * D.sInc);
+  s.gap = Math.max(D.gMin, D.g0 - s.score * D.gDec);
+  lp = s.pipes[s.pipes.length - 1];
+  for (i = 0; i < s.pipes.length; i++) s.pipes[i].x -= s.spd;
+  if (!lp || lp.x < W - Math.max(D.dMin, D.dist - s.score * D.dDec)) {
+    const cmin = 58 + s.gap / 2, cmax = H - G - 58 - s.gap / 2;
+    const c = lp
+      ? Math.max(cmin, Math.min(cmax, lp.gy + lp.g / 2 + (s.rnd() * 2 - 1) * Math.min(D.jMax, D.jit + s.score * D.jInc)))
+      : (cmin + cmax) / 2;
+    s.pipes.push({ x: W + 4, gy: c - s.gap / 2, g: s.gap, p: false });
+  }
+  if (s.pipes.length && s.pipes[0].x < -PW - 10) s.pipes.shift();
+  for (i = 0; i < s.pipes.length; i++) {
+    p = s.pipes[i]; gb = p.gy + p.g;
+    if (!p.p && p.x + PW < BX - R) { p.p = true; s.score++; }
+    if (hit(s.by, p.x, -10, PW, p.gy + 10) || hit(s.by, p.x - 3, p.gy - 18, PW + 6, 18) ||
+        hit(s.by, p.x, gb, PW, H) || hit(s.by, p.x - 3, gb, PW + 6, 18)) return 1;
+  }
+  if (s.by + R >= H - G) { s.by = H - G - R; return 2; }
+  if (s.by < R) { s.by = R; if (s.bv < 0) s.bv = 0; }
+  return 0;
+};
+function sim(sd, r, D) {
+  const a = r.split(","), set = {};
+  let x = 0, i, d, st;
+  if (a.length > 700) return null;
+  for (i = 0; i < a.length; i++) {
+    d = parseInt(a[i], 10);
+    if (!(d >= 0) || (i > 0 && d < 4)) return null;
+    x += d; set[x] = 1;
+  }
+  const c = new Core(sd, D);
+  while (c.f < 20000) {
+    st = c.tick(set[c.f] === 1);
+    if (st) return { s: c.score, n: c.f };
+  }
+  return null;
+}
+function cp(x) {
+  return String(x).replace(/[\u0000-\u001f\u007f<>"'`\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]/g, "").trim().slice(0, 16);
+}
+function pt(id) {
+  let t = 0;
+  for (let i = 0; i < 8; i++) t = t * 64 + PCH.indexOf(id.charAt(i));
+  return t;
+}
 
-  var names=["accueil","produits","jeux","infos"];
-  function show(){
-    var h=(location.hash||"#accueil").slice(1);if(names.indexOf(h)<0)h="accueil";
-    names.forEach(function(n){document.getElementById("v-"+n).hidden=(n!==h)});
-    Array.prototype.forEach.call(document.querySelectorAll(".tabs a"),function(a){a.classList.toggle("on",a.getAttribute("data-t")===h)});
-    if(h==="produits"){if(go){openCat(go);go=null}else showMenu()}
-    window.scrollTo(0,0);
+// ---------- Vérification des scores ----------
+const VC = {};
+function verify(o, D) {
+  const ks = Object.keys(o).sort().slice(0, 5000), owner = {}, used = {}, bst = {}, out = [];
+  for (let i = 0; i < ks.length; i++) {
+    const e = o[ks[i]];
+    if (!e || typeof e.p !== "string" || typeof e.s !== "number" || typeof e.r !== "string" ||
+        typeof e.k !== "string" || typeof e.tk !== "string" || typeof e.sd !== "number" || typeof e.n !== "number") continue;
+    const pk = cp(e.p).toLowerCase();
+    if (!pk || e.r.length > 4000 || e.s < 1 || e.tk.length !== 20 || used[e.tk]) continue;
+    if (!(pt(ks[i]) - pt(e.tk) >= e.n * STEP * .9 - 2500)) continue;
+    let v = VC[e.tk];
+    if (v === undefined) { v = sim(e.sd, e.r, D) || 0; VC[e.tk] = v; }
+    if (!v || v.s !== e.s || v.n !== e.n) continue;
+    used[e.tk] = 1;
+    if (owner[pk] === undefined) owner[pk] = e.k; else if (owner[pk] !== e.k) continue;
+    if (!bst[pk]) bst[pk] = { p: cp(e.p), s: 0 };
+    bst[pk].s += e.s;
   }
-  window.addEventListener("hashchange",show);show();
+  for (const k in bst) out.push(bst[k]);
+  return out;
+}
 
-  function click(id){var f=document.getElementById(id);if(f)f.click()}
-  Array.prototype.forEach.call(document.querySelectorAll("[data-act]"),function(b){
-    b.onclick=function(){click(b.getAttribute("data-act")==="wheel"?"wfab":"gfab")};
-  });
-  document.getElementById("cp").onclick=function(){
-    var b=this,t="@Frozen_blokcNormandy16";
-    function sel(){var r=document.createRange();r.selectNodeContents(document.getElementById("tg"));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent="Sélectionné"}
-    try{navigator.clipboard.writeText(t).then(function(){b.textContent="Copié"},sel)}catch(e){sel()}
-    setTimeout(function(){b.textContent="Copier"},1800);
-  };
-})();
-</script>
-<script>var CONTACT="Frozen_blokcNormandy16";</script>
-<script>
-// Musique de fond : démarre toute seule dès que le navigateur l'autorise
-// (au chargement si possible, sinon au premier toucher), avec bouton son coupé / activé.
-(function(){
-  var a=document.getElementById("mus"),b=document.getElementById("mbtn");
-  if(!a||!b)return;
-  var KEY="fb_musique",off=false,EV=["pointerdown","touchend","keydown","click"];
-  try{off=localStorage.getItem(KEY)==="off"}catch(e){}
-  a.volume=.35;
-  function paintB(){var on=!a.paused;b.textContent=on?"🔊":"🔇";b.setAttribute("aria-label",on?"Couper la musique":"Activer la musique");b.setAttribute("aria-pressed",String(on))}
-  function save(){try{localStorage.setItem(KEY,off?"off":"on")}catch(e){}}
-  function unbind(){EV.forEach(function(n){document.removeEventListener(n,first,true)})}
-  function start(){
-    if(off)return;
-    var p=a.play();
-    if(p&&p.then)p.then(function(){unbind();paintB()},function(){});
-  }
-  function first(e){if(b.contains(e.target))return;start()}
-  a.addEventListener("play",paintB);a.addEventListener("pause",paintB);
-  a.addEventListener("error",function(){b.hidden=true;unbind()});
-  b.onclick=function(){
-    if(!a.paused){off=true;save();a.pause()}
-    else{off=false;save();var p=a.play();if(p&&p.catch)p.catch(function(){})}
-  };
-  document.addEventListener("visibilitychange",function(){
-    if(document.hidden)a.pause();
-    else if(!off){var p=a.play();if(p&&p.catch)p.catch(function(){})}
-  });
-  if(!off){
-    EV.forEach(function(n){document.addEventListener(n,first,true)});
-    start();
-  }
-  paintB();
-})();
-</script>
-<script src="jeu.js"></script>
+// Semaine (format du site : 2026-S44), heure de Paris
+function wk(d) {
+  const p = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" })
+    .format(d).split("-").map(Number);
+  const t = new Date(Date.UTC(p[0], p[1] - 1, p[2]));
+  const j = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - j);
+  const y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+  return t.getUTCFullYear() + "-S" + Math.ceil(((t - y) / 864e5 + 1) / 7);
+}
+const thisWeek = () => wk(new Date());
+const lastWeek = () => wk(new Date(Date.now() - 7 * 864e5));
+
+async function board(week) {
+  const r = await fetch(FB_URL.replace(/\/$/, "") + "/scores/" + week + "-flappy.json");
+  if (!r.ok) throw new Error("firebase " + r.status);
+  const o = await r.json();
+  return verify(o || {}, diffFor(week)).sort((a, b) => b.s - a.s || a.p.localeCompare(b.p));
+}
+function lines(rows, withPrize) {
+  return rows.slice(0, 10)
+    .map((r, i) => (RANK[i] || (i + 1) + ".") + " " + r.p + " — " + r.s + " pts" + (withPrize ? " → " + PRIZE[i] : ""))
+    
