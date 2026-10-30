@@ -96,6 +96,7 @@ $("order").onclick=function(){
   try{var t=window.Telegram&&window.Telegram.WebApp;if(t&&t.openTelegramLink){t.openTelegramLink(url);return}}catch(x){}
   window.open(url,"_blank");
 };
+var im=document.querySelector("#t-info .hero");if(im)$("hh").src=im.src;
 $("copy").onclick=function(){var b=this;try{navigator.clipboard.writeText(msg()).then(function(){b.textContent="Copié ✓"},function(){b.textContent="Copie impossible"})}catch(e){b.textContent="Copie impossible"}setTimeout(function(){b.textContent="Copier la commande"},1600)};
 var SP=[["Mitterrand — Centre-ville","Boutique principale","mitterrand"],["Hauteville","Point de retrait","hauteville"],["Secteur lycée Cornu","Point de retrait","lycee-cornu"],["Secteur lycée Gambier","Point de retrait","lycee-gambier"],["Secteur lycée Magne","Point de retrait","lycee-magne"]];
 var EXT=["jpg","jpeg","png","webp","JPG","JPEG","PNG","WEBP","Jpg","Jpeg","Png","Webp","avif","gif"];
