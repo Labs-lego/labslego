@@ -16,3 +16,10 @@ INSTALLATION
 
 À SAVOIR
 Le dossier contient les fichiers de code disponibles, mais pas toutes les photos/vidéos du dépôt d'origine. La maquette graphique n'est pas une image qu'on peut mettre à la place du code : il faut intégrer le design dans les fichiers HTML/CSS/JS. Cette archive conserve le fonctionnement actuel; elle ne prétend pas que la refonte visuelle complète est déjà intégrée.
+
+
+MISE À JOUR PHOTOS (30/10/2026)
+- La nouvelle photo fournie de la Boîte de tubes est dans photos/boite-tubes.jpg.
+- Le code app.js utilise ce chemin.
+- Le dossier photos contient aussi bic.PNG et briquet-bic.jpg.
+- Cette archive n’a pas été publiée sur GitHub automatiquement : il faut remplacer les fichiers du dépôt avec ceux-ci.
