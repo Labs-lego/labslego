@@ -2,12 +2,19 @@
 try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();try{tg.disableVerticalSwipes&&tg.disableVerticalSwipes()}catch(e){}}}catch(e){}
 
 (function(){var a=document.getElementById("bg-music"),b=document.getElementById("music-toggle");if(!a||!b)return;
-function label(){b.textContent=a.paused?"🔇":"🎵";}
-function start(){var p=a.play();if(p&&p.then)p.then(label).catch(function(){b.textContent="🔇";});}
-b.addEventListener("click",function(){if(a.paused)start();else{a.pause();label();}});
-start();
-document.addEventListener("pointerdown",function once(){if(a.paused)start();document.removeEventListener("pointerdown",once);},{once:true});
+var off=false,evs=["touchend","click","keydown"];
+function label(){b.textContent=(a.paused||a.muted)?"🔇":"🎵";}
+function go(){var p;try{p=a.play()}catch(e){}if(p&&p.then)p.then(label).catch(function(){})}
+function arm(){evs.forEach(function(v){document.addEventListener(v,tap,true)})}
+function disarm(){evs.forEach(function(v){document.removeEventListener(v,tap,true)})}
+function tap(e){if(e.target&&e.target.closest&&e.target.closest("#music-toggle"))return;if(off)return;a.muted=false;go();label()}
+b.addEventListener("click",function(){if(!a.paused&&!a.muted){off=true;a.pause()}else{off=false;a.muted=false;go()}label()});
+a.addEventListener("playing",function(){if(!a.muted)disarm();label()});
 a.addEventListener("play",label);a.addEventListener("pause",label);
+arm();
+a.muted=false;
+var p0;try{p0=a.play()}catch(e){}
+if(p0&&p0.then)p0.then(label).catch(function(){a.muted=true;go();label()});
 })();
 
 (function(){
