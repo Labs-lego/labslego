@@ -98,11 +98,33 @@ $("order").onclick=function(){
 };
 var im=document.querySelector("#t-info .hero");if(im)$("hh").src=im.src;
 $("copy").onclick=function(){var b=this;try{navigator.clipboard.writeText(msg()).then(function(){b.textContent="Copié ✓"},function(){b.textContent="Copie impossible"})}catch(e){b.textContent="Copie impossible"}setTimeout(function(){b.textContent="Copier la commande"},1600)};
-var SP=[["Mitterrand — Centre-ville","Boutique principale","mitterrand"],["Hauteville","Point de retrait","hauteville"],["Secteur lycée Cornu","Point de retrait","lycee-cornu"],["Secteur lycée Gambier","Point de retrait","lycee-gambier"],["Secteur lycée Magne","Point de retrait","lycee-magne"]];
-var EXT=["jpg","jpeg","png","webp","JPG","JPEG","PNG","WEBP","Jpg","Jpeg","Png","Webp","avif","gif"];
-$("shops").innerHTML=SP.map(function(x,i){return '<div class="shop"><div class="shot" id="sh'+i+'"><span>📷</span><small>Photo bientôt</small></div><b>'+esc(x[0])+'</b><small>'+esc(x[1])+'</small></div>'}).join("");
-SP.forEach(function(x,i){var k=0,box=$("sh"+i);(function nx(){if(k>=EXT.length)return;var im=new Image();im.alt=x[0];im.onload=function(){box.innerHTML="";box.appendChild(im)};im.onerror=nx;im.src="boutiques/"+x[2]+"."+EXT[k++]})()});
-$("pickup").innerHTML=SP.map(function(x){var n=x[0]+(x[1]==="Boutique principale"?" (boutique principale)":"");return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");
+var SP=[
+  ["Mitterrand — Centre-ville","Boutique principale","mitterrand.png"],
+  ["Hauteville","Point de retrait","hauteville.png"],
+  ["Secteur lycée Cornu","Point de retrait","cornu.png"],
+  ["Secteur lycée Gambier","Point de retrait","gambier.png"],
+  ["Secteur lycée Magne","Point de retrait","magne.png"]
+];
+$("shops").innerHTML=SP.map(function(x,i){
+  return '<div class="shop"><div class="shot" id="sh'+i+'"><span>📷</span><small>Chargement…</small></div><b>'+esc(x[0])+'</b><small>'+esc(x[1])+'</small></div>';
+}).join("");
+SP.forEach(function(x,i){
+  var box=$("sh"+i);
+  var im=new Image();
+  im.alt=x[0];
+  im.onload=function(){
+    box.innerHTML="";
+    box.appendChild(im);
+  };
+  im.onerror=function(){
+    box.innerHTML='<span>📷</span><small>Photo introuvable</small>';
+  };
+  im.src=x[2];
+});
+$("pickup").innerHTML=SP.map(function(x){
+  var n=x[0]+(x[1]==="Boutique principale"?" (boutique principale)":"");
+  return '<option value="'+esc(n)+'">'+esc(n)+'</option>';
+}).join("");
 drawP();drawC();go("home");
 })();
 
