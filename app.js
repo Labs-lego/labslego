@@ -25,7 +25,7 @@ var P=[{"r": "FEU-NOI", "n": "OCB Premium Slim", "s": "Feuilles noires", "c": "F
 {"r": "CHI-002", "v": "video-graines-2.mp4", "n": "Gurly goût pastille", "s": "Chips", "c": "Chips", "l": [], "i": null},
 {"r": "CAN-FAN", "v": "video-canette-fanta.mp4", "n": "Fanta", "s": "Canette rare", "c": "Canettes rares", "l": [], "i": null},
 {"r": "CAN-RED", "v": "video-canette-redbull.mp4", "n": "Red Bull", "s": "Canette rare", "c": "Canettes rares", "l": [], "i": null},
-{"r": "ACC-TUB", "n": "Boîte de tubes", "s": "", "c": "Accessoires", "l": [[1,35],[2,67]], "i": "tabac.jpg"},
+{"r": "ACC-TUB", "n": "Boîte de tubes", "s": "", "c": "Accessoires", "l": [[1,35],[2,67]], "i": null},
 {"r": "VET-VES", "v": "video-veste.mp4", "n": "Veste Frozen Blocks", "s": "La veste maison", "c": "Vêtements", "l": [[1,80],[2,160],[3,240],[5,400],[10,800]], "i": null},
 {"r": "VET-CAS", "v": "video-casquette.mp4", "n": "Casquette Frozen Blocks", "s": "", "c": "Vêtements", "l": [], "i": null}
 ];
@@ -44,19 +44,20 @@ function cats(){var s=[];P.forEach(function(x){if(s.indexOf(x.c)<0)s.push(x.c)})
 function chips(){return cats().map(function(c){var n=P.filter(function(x){return x.c===c}).length;return '<button class="chp" data-cat="'+esc(c)+'"><span>'+(E[c]||"🛍️")+'</span>'+esc(c)+'<small>'+n+'</small></button>'}).join("")}
 function bar(){return '<div class="chipbar">'+cats().map(function(c){return '<button class="fc'+(c===cat?' on':'')+'" data-cat="'+esc(c)+'">'+(E[c]||"🛍️")+' '+esc(c)+'</button>'}).join("")+'</div>'}
 function card(x,i){var h='<div class="pc3"><div class="hd">'+(x.i?'<img class="ph" loading="lazy" alt="'+esc(x.n)+'" src="'+x.i+'">':'<div class="ph ph0" data-ph="'+x.r.toLowerCase()+'">'+(E[x.c]||"🛍️")+'</div>')+'<div class="inf"><b>'+esc(x.n)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+'</div>'+(x.v?'<button class="vid" data-video="'+i+'" aria-label="Voir la vidéo : '+esc(x.n)+'">▶</button>':'')+'</div><div class="lots2">';
-  LOTS.forEach(function(k){var p=lp(x,k);h+='<button class="lt" data-add="'+i+'|'+k+'" aria-label="Ajouter '+esc(x.n)+', '+lab(k)+'"><b>'+(k===1?"Unité":"Lot de "+k)+'</b><small'+(p==null?' class="na">à confirmer':'>'+fmt(p))+'</small></button>'});
+  LOTS.forEach(function(k){var p=lp(x,k);h+='<div class="ltw"><button class="lt" data-add="'+i+'|'+k+'" aria-label="Ajouter '+esc(x.n)+', '+lab(k)+'"><b>'+(k===1?"Unité":"Lot de "+k)+'</b><small'+(p==null?' class="na">à confirmer':'>'+fmt(p))+'</small></button><button class="lm" hidden data-m="'+i+'|'+k+'" data-d="-1" aria-label="Retirer un lot : '+esc(x.n)+', '+lab(k)+'"></button></div>'});
   return h+'</div></div>'}
 var PH={};
 function findPhotos(){document.querySelectorAll("#pview .ph0[data-ph]").forEach(function(box){var id=box.getAttribute("data-ph");
   function put(src){if(!box.parentNode)return;var im=new Image();im.className="ph";im.alt=id;im.src=src;box.parentNode.replaceChild(im,box)}
   if(PH[id]){if(PH[id]!=="no")put(PH[id]);return}
   var k=0;(function nx(){if(k>=EXT.length){PH[id]="no";return}var u="photos/"+id+"."+EXT[k++],t=new Image();t.onload=function(){PH[id]=u;put(u)};t.onerror=nx;t.src=u})()})}
-function drawP(){if(cat===null)cat=cats()[0];var h=bar();P.forEach(function(x,i){if(x.c===cat)h+=card(x,i)});$("pview").innerHTML=h;findPhotos();var b=document.querySelector("#pview .chipbar"),o=b&&b.querySelector(".on");if(o)b.scrollLeft=Math.max(0,o.offsetLeft-18)}
+function sync(){document.querySelectorAll("#pview .lm").forEach(function(b){var n=cart[b.dataset.m]||0;b.hidden=!n;b.textContent=n?"− "+n:""})}
+function drawP(){if(cat===null)cat=cats()[0];var h=bar();P.forEach(function(x,i){if(x.c===cat)h+=card(x,i)});$("pview").innerHTML=h;sync();findPhotos();var b=document.querySelector("#pview .chipbar"),o=b&&b.querySelector(".on");if(o)b.scrollLeft=Math.max(0,o.offsetLeft-18)}
 function drawC(){var L=lines(),r=sum(L),h="";
   if(!L.length)h='<p class="note2">Votre panier est vide. Choisissez une catégorie dans Produits.</p>';
-  else L.forEach(function(l){h+='<div class="cl"><div><b>'+esc(l.x.n)+'</b><small>'+lab(l.k)+(l.k>1?" ("+l.k+" pièces)":"")+' · '+l.x.r+'</small><small class="pr">'+(l.c==null?"Prix à confirmer":fmt(l.c))+'</small></div><div class="st"><button data-m="'+l.i+'|'+l.k+'" data-d="-1" aria-label="Retirer un lot">−</button><span>'+l.n+'</span><button data-m="'+l.i+'|'+l.k+'" data-d="1" aria-label="Ajouter un lot">+</button></div></div>'});
+  else L.forEach(function(l){h+='<div class="cl"><div><b>'+esc(l.x.n)+'</b><small>'+lab(l.k)+(l.k>1?" ("+l.k+" pièces)":"")+' · '+l.x.r+'</small><small class="pr">'+(l.c==null?"Prix à confirmer":fmt(l.c))+'</small><button class="rm" data-rm="'+l.i+'|'+l.k+'" aria-label="Retirer cet article du panier">Retirer</button></div><div class="st"><button data-m="'+l.i+'|'+l.k+'" data-d="-1" aria-label="Retirer un lot">−</button><span>'+l.n+'</span><button data-m="'+l.i+'|'+l.k+'" data-d="1" aria-label="Ajouter un lot">+</button></div></div>'});
   $("cview").innerHTML=h;$("ctot").textContent=r.n?"Total : "+lbl(r):"";$("order").disabled=!r.n;$("copy").disabled=!r.n;$("msgp").textContent=r.n?msg():"";
-  $("nav").querySelector('[data-go="cart"] em').textContent=r.n?r.n:""}
+  $("nav").querySelector('[data-go="cart"] em').textContent=r.n?r.n:"";sync()}
 function go(t){T.forEach(function(k){$("t-"+k).hidden=k!==t;$("nav").querySelector('[data-go="'+k+'"]').classList.toggle("on",k===t)});window.scrollTo(0,0)}
 var vov=document.createElement("div");vov.id="vov";vov.hidden=true;
 vov.innerHTML='<button id="vcl" aria-label="Fermer">✕</button><b id="vt"></b><video id="vv" controls playsinline></video><p id="vm"></p>';
@@ -77,6 +78,7 @@ document.addEventListener("click",function(e){var el,k;
   if(el=e.target.closest("[data-add]")){k=el.dataset.add;cart[k]=(cart[k]||0)+1;drawC();if(el.dataset.o===undefined)el.dataset.o=el.innerHTML;el.innerHTML="<b>✓</b><small>ajouté</small>";clearTimeout(el._t);el._t=setTimeout(function(){el.innerHTML=el.dataset.o},900);hap();return}
   if(el=e.target.closest("[data-video]")){openV(+el.dataset.video);return}
   if(el=e.target.closest("[data-m]")){k=el.dataset.m;cart[k]=(cart[k]||0)+ +el.dataset.d;if(cart[k]<=0)delete cart[k];drawC();return}
+  if(el=e.target.closest("[data-rm]")){delete cart[el.dataset.rm];drawC();return}
   if(el=e.target.closest("[data-go]")){go(el.dataset.go);return}
   if(el=e.target.closest("[data-open]")){var f=$(el.dataset.open);if(f)f.click()}
 });
