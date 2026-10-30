@@ -42,17 +42,17 @@ function sum(L){var t=0,u=0,n=0;L.forEach(function(l){n+=l.n;if(l.c==null)u=1;el
 function lbl(r){return r.u?(r.t?fmt(r.t)+" + à confirmer":"à confirmer"):fmt(r.t)}
 var ORDER=["Accessoires","Feuilles","Chips","Canettes rares","Vêtements"];
 function cats(){var s=[];P.forEach(function(x){if(s.indexOf(x.c)<0)s.push(x.c)});s.sort(function(a,b){var x=ORDER.indexOf(a),y=ORDER.indexOf(b);return (x<0?99:x)-(y<0?99:y)});return s}
-function chips(){return cats().map(function(c){var n=P.filter(function(x){return x.c===c}).length;return '<button class="chp" data-cat="'+esc(c)+'"><span>'+(E[c]||"🛍️")+'</span>'+esc(c)+'<small>'+n+'</small></button>'}).join("")}
-function bar(){return '<div class="chipbar">'+cats().map(function(c){return '<button class="fc'+(c===cat?' on':'')+'" data-cat="'+esc(c)+'">'+(E[c]||"🛍️")+' '+esc(c)+'</button>'}).join("")+'</div>'}
+function chips(){return cats().map(function(c,j){var n=P.filter(function(x){return x.c===c}).length;return '<button class="ct c'+(j%5)+'" data-cat="'+esc(c)+'"><i>'+(E[c]||"🛍️")+'</i>'+esc(c)+'<small>'+n+' produit'+(n>1?'s':'')+'</small></button>'}).join("")}
+function bar(){return '<button class="back" data-go="home">‹ Retour</button><h3 class="cn">'+(E[cat]||"🛍️")+' '+esc(cat)+'</h3><div class="chipbar">'+cats().map(function(c){return '<button class="fc'+(c===cat?' on':'')+'" data-cat="'+esc(c)+'">'+(E[c]||"🛍️")+' '+esc(c)+'</button>'}).join("")+'</div>'}
 function card(x,i){var h='<div class="pc3"><div class="hd">'+(x.i?'<img class="ph" loading="lazy" alt="'+esc(x.n)+'" src="'+x.i+'">':'<div class="ph ph0" data-ph="'+x.r.toLowerCase()+'">'+(E[x.c]||"🛍️")+'</div>')+'<div class="inf"><b>'+esc(x.n)+'</b>'+(x.s?'<small>'+esc(x.s)+'</small>':'')+'</div>'+(x.v?'<button class="vid" data-video="'+i+'" aria-label="Voir la vidéo : '+esc(x.n)+'">▶</button>':'')+'</div><div class="lots2">';
-  LOTS.forEach(function(k){var p=lp(x,k);h+='<div class="ltw"><button class="lt" data-add="'+i+'|'+k+'" aria-label="Ajouter '+esc(x.n)+', '+lab(k)+'"><b>'+(k===1?"Unité":"Lot de "+k)+'</b><small'+(p==null?' class="na">à confirmer':'>'+fmt(p))+'</small></button><button class="lm" hidden data-m="'+i+'|'+k+'" data-d="-1" aria-label="Retirer un lot : '+esc(x.n)+', '+lab(k)+'"></button></div>'});
+  LOTS.forEach(function(k){var p=lp(x,k);h+='<div class="ltw"><button class="lt" data-add="'+i+'|'+k+'" aria-label="Ajouter '+esc(x.n)+', '+lab(k)+'"><b>'+(k===1?"Unité":"Lot de "+k)+'</b><small'+(p==null?' class="na">à confirmer':'>'+fmt(p))+'</small></button><div class="stp" hidden><button data-m="'+i+'|'+k+'" data-d="-1" aria-label="Retirer un : '+esc(x.n)+', '+lab(k)+'">−</button><span data-q="'+i+'|'+k+'">0</span><button data-m="'+i+'|'+k+'" data-d="1" aria-label="Ajouter un : '+esc(x.n)+', '+lab(k)+'">+</button></div></div>'});
   return h+'</div></div>'}
 var PH={};
 function findPhotos(){document.querySelectorAll("#pview .ph0[data-ph]").forEach(function(box){var id=box.getAttribute("data-ph");
   function put(src){if(!box.parentNode)return;var im=new Image();im.className="ph";im.alt=id;im.src=src;box.parentNode.replaceChild(im,box)}
   if(PH[id]){if(PH[id]!=="no")put(PH[id]);return}
   var k=0;(function nx(){if(k>=EXT.length){PH[id]="no";return}var u="photos/"+id+"."+EXT[k++],t=new Image();t.onload=function(){PH[id]=u;put(u)};t.onerror=nx;t.src=u})()})}
-function sync(){document.querySelectorAll("#pview .lm").forEach(function(b){var n=cart[b.dataset.m]||0;b.hidden=!n;b.textContent=n?"− "+n:""})}
+function sync(){document.querySelectorAll("#pview .ltw").forEach(function(w){var s=w.querySelector(".stp"),q=s.querySelector("[data-q]"),n=cart[q.dataset.q]||0;s.hidden=!n;q.textContent=n;w.querySelector(".lt").classList.toggle("on",!!n)})}
 function drawP(){if(cat===null)cat=cats()[0];var h=bar();P.forEach(function(x,i){if(x.c===cat)h+=card(x,i)});$("pview").innerHTML=h;sync();findPhotos();var b=document.querySelector("#pview .chipbar"),o=b&&b.querySelector(".on");if(o)b.scrollLeft=Math.max(0,o.offsetLeft-18)}
 function drawC(){var L=lines(),r=sum(L),h="";
   if(!L.length)h='<p class="note2">Votre panier est vide. Choisissez une catégorie dans Produits.</p>';
