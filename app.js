@@ -9,10 +9,13 @@ try {
     } catch (e) {}
   }
 } catch (e) {}
+
 (function () {
   var audio = document.getElementById("bg-music");
   var button = document.getElementById("music-toggle");
+
   if (!audio || !button) return;
+
   // Les 4 musiques présentes dans le dossier musique/
   var playlist = [
     "musique/Mutique.mp3",
@@ -20,72 +23,128 @@ try {
     "musique/Musique 2.mp3",
     "musique/Musique(1)(1).mp3"
   ];
+
   var currentTrack = 0;
   var userPaused = false;
   var waitingForInteraction = true;
+  var startAtSeconds = 7;
+  var trackReady = false;
+
   function updateButton() {
     button.textContent =
       (!audio.paused && !audio.muted && !userPaused)
         ? "🎵"
         : "🔇";
   }
+
   function loadTrack(index) {
     currentTrack = (index + playlist.length) % playlist.length;
+    trackReady = false;
+
     audio.src = playlist[currentTrack];
     audio.load();
   }
+
+  // Chaque morceau commence à 7 secondes
+  audio.addEventListener("loadedmetadata", function () {
+    if (Number.isFinite(audio.duration) && audio.duration > startAtSeconds) {
+      audio.currentTime = startAtSeconds;
+    }
+  });
+
+  // Attendre que la position de départ soit appliquée
+  audio.addEventListener("seeked", function () {
+    trackReady = true;
+
+    if (!userPaused) {
+      playMusic();
+    }
+  });
+
   function playMusic() {
     if (userPaused) return;
+
     audio.muted = false;
+
+    // Ne pas lancer le morceau avant d'avoir atteint 7 secondes
+    if (!trackReady) {
+      if (audio.readyState >= 1 &&
+          Number.isFinite(audio.duration) &&
+          audio.duration > startAtSeconds) {
+        audio.currentTime = startAtSeconds;
+      }
+      return;
+    }
+
     var promise = audio.play();
+
     if (promise && promise.then) {
       promise.then(function () {
         waitingForInteraction = false;
         updateButton();
       }).catch(function () {
+        waitingForInteraction = true;
         updateButton();
       });
     }
   }
-  // Lecture automatique du morceau suivant
+
+  // Passage automatique au morceau suivant
   audio.addEventListener("ended", function () {
     if (userPaused) return;
+
     loadTrack(currentTrack + 1);
-    playMusic();
   });
+
   // Bouton musique : lecture ou pause
   button.addEventListener("click", function (event) {
     event.preventDefault();
+
     if (!audio.paused && !audio.muted) {
       userPaused = true;
       audio.pause();
     } else {
       userPaused = false;
-      playMusic();
+
+      if (trackReady) {
+        playMusic();
+      } else if (audio.readyState >= 1) {
+        audio.currentTime = startAtSeconds;
+      }
     }
+
     updateButton();
   });
+
   audio.addEventListener("play", updateButton);
   audio.addEventListener("pause", updateButton);
+
   // Première musique
   loadTrack(0);
   updateButton();
-  // Tentative de démarrage automatique.
-  // Si le navigateur bloque le son, une interaction sera nécessaire.
-  playMusic();
+
   // Démarrage au premier geste de l'utilisateur si nécessaire
   function startAfterInteraction() {
     if (waitingForInteraction && !userPaused) {
-      playMusic();
-    }
+      if (trackReady) {
+        playMusic();
+      } else if (audio.readyState >= 1 &&
+                 Number.isFinite(audio.duration) &&
+                 audio.duration > startAtSeconds) {
+        audio.currentTime = startAtSeconds;
+      }
+   }
+
     if (!waitingForInteraction || userPaused) {
       document.removeEventListener("touchstart", startAfterInteraction);
       document.removeEventListener("click", startAfterInteraction);
     }
   }
+
   document.addEventListener("touchstart", startAfterInteraction);
   document.addEventListener("click", startAfterInteraction);
 })();
+```
 
 (function(){
 var C="Frozen_blokcNormandy16";
