@@ -101,7 +101,9 @@ var SP=[["Mitterrand — Centre-ville","Boutique principale","mitterrand"],["Hau
 var EXT=["jpg","jpeg","png","webp","JPG","JPEG","PNG","WEBP","Jpg","Jpeg","Png","Webp","avif","gif"];
 $("shops").innerHTML=SP.map(function(x,i){return '<div class="shop"><div class="shot" id="sh'+i+'"><span>📷</span><small>Photo bientôt</small></div><b>'+esc(x[0])+'</b><small>'+esc(x[1])+'</small></div>'}).join("");
 SP.forEach(function(x,i){var k=0,box=$("sh"+i);(function nx(){if(k>=EXT.length)return;var im=new Image();im.alt=x[0];im.onload=function(){box.innerHTML="";box.appendChild(im)};im.onerror=nx;im.src="boutiques/"+x[2]+"."+EXT[k++]})()});
+$("pickup").innerHTML=SP.map(function(x){var n=x[0]+(x[1]==="Boutique principale"?" (boutique principale)":"");return '<option value="'+esc(n)+'">'+esc(n)+'</option>'}).join("");
 drawP();drawC();go("home");
 })();
+
 
 (function(){var st=document.createElement("style");st.textContent=".lm{min-width:44px;height:30px;font-size:17px;top:-13px;right:-8px;display:flex;align-items:center;justify-content:center;background:#2f9e4f;color:#fff;border-color:#101627;pointer-events:none}.lm::before{display:none}.lm.pop{animation:lmp .35s ease-out}@keyframes lmp{0%{transform:scale(.6)}60%{transform:scale(1.35)}100%{transform:scale(1)}}.stp span{font-size:22px}.lt.on{border-width:2px}";document.head.appendChild(st)})();
