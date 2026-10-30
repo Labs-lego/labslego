@@ -1,20 +1,90 @@
-// Frozen Blocks Lisieux : boutique, Telegram, musique
-try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();try{tg.disableVerticalSwipes&&tg.disableVerticalSwipes()}catch(e){}}}catch(e){}
-
-(function(){var a=document.getElementById("bg-music"),b=document.getElementById("music-toggle");if(!a||!b)return;
-var off=false,evs=["touchend","click","keydown"];
-function label(){b.textContent=(a.paused||a.muted)?"🔇":"🎵";}
-function go(){var p;try{p=a.play()}catch(e){}if(p&&p.then)p.then(label).catch(function(){})}
-function arm(){evs.forEach(function(v){document.addEventListener(v,tap,true)})}
-function disarm(){evs.forEach(function(v){document.removeEventListener(v,tap,true)})}
-function tap(e){if(e.target&&e.target.closest&&e.target.closest("#music-toggle"))return;if(off)return;a.muted=false;go();label()}
-b.addEventListener("click",function(){if(!a.paused&&!a.muted){off=true;a.pause()}else{off=false;a.muted=false;go()}label()});
-a.addEventListener("playing",function(){if(!a.muted)disarm();label()});
-a.addEventListener("play",label);a.addEventListener("pause",label);
-arm();
-a.muted=false;
-var p0;try{p0=a.play()}catch(e){}
-if(p0&&p0.then)p0.then(label).catch(function(){a.muted=true;go();label()});
+// FROZENBLOCKS LISIEUX — PLAYLIST 4 MUSIQUES 🎵
+try {
+  var tg = window.Telegram && window.Telegram.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    try {
+      tg.disableVerticalSwipes && tg.disableVerticalSwipes();
+    } catch (e) {}
+  }
+} catch (e) {}
+(function () {
+  var audio = document.getElementById("bg-music");
+  var button = document.getElementById("music-toggle");
+  if (!audio || !button) return;
+  // Les 4 musiques présentes dans le dossier musique/
+  var playlist = [
+    "musique/Mutique.mp3",
+    "musique/lol(2).mp3",
+    "musique/Musique 2.mp3",
+    "musique/Musique(1)(1).mp3"
+  ];
+  var currentTrack = 0;
+  var userPaused = false;
+  var waitingForInteraction = true;
+  function updateButton() {
+    button.textContent =
+      (!audio.paused && !audio.muted && !userPaused)
+        ? "🎵"
+        : "🔇";
+  }
+  function loadTrack(index) {
+    currentTrack = (index + playlist.length) % playlist.length;
+    audio.src = playlist[currentTrack];
+    audio.load();
+  }
+  function playMusic() {
+    if (userPaused) return;
+    audio.muted = false;
+    var promise = audio.play();
+    if (promise && promise.then) {
+      promise.then(function () {
+        waitingForInteraction = false;
+        updateButton();
+      }).catch(function () {
+        updateButton();
+      });
+    }
+  }
+  // Lecture automatique du morceau suivant
+  audio.addEventListener("ended", function () {
+    if (userPaused) return;
+    loadTrack(currentTrack + 1);
+    playMusic();
+  });
+  // Bouton musique : lecture ou pause
+  button.addEventListener("click", function (event) {
+    event.preventDefault();
+    if (!audio.paused && !audio.muted) {
+      userPaused = true;
+      audio.pause();
+    } else {
+      userPaused = false;
+      playMusic();
+    }
+    updateButton();
+  });
+  audio.addEventListener("play", updateButton);
+  audio.addEventListener("pause", updateButton);
+  // Première musique
+  loadTrack(0);
+  updateButton();
+  // Tentative de démarrage automatique.
+  // Si le navigateur bloque le son, une interaction sera nécessaire.
+  playMusic();
+  // Démarrage au premier geste de l'utilisateur si nécessaire
+  function startAfterInteraction() {
+    if (waitingForInteraction && !userPaused) {
+      playMusic();
+    }
+    if (!waitingForInteraction || userPaused) {
+      document.removeEventListener("touchstart", startAfterInteraction);
+      document.removeEventListener("click", startAfterInteraction);
+    }
+  }
+  document.addEventListener("touchstart", startAfterInteraction);
+  document.addEventListener("click", startAfterInteraction);
 })();
 
 (function(){
