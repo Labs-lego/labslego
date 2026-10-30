@@ -25,7 +25,7 @@ var P=[{"r": "FEU-NOI", "n": "OCB Premium Slim", "s": "Feuilles noires", "c": "F
 {"r": "CHI-002", "v": "video-graines-2.mp4", "n": "Gurly goût pastille", "s": "Chips", "c": "Chips", "l": [], "i": null},
 {"r": "CAN-FAN", "v": "video-canette-fanta.mp4", "n": "Fanta", "s": "Canette rare", "c": "Canettes rares", "l": [], "i": null},
 {"r": "CAN-RED", "v": "video-canette-redbull.mp4", "n": "Red Bull", "s": "Canette rare", "c": "Canettes rares", "l": [], "i": null},
-{"r": "ACC-TUB", "n": "Boîte de tubes", "s": "", "c": "Accessoires", "l": [[1,35],[2,67]], "i": null},
+{"r": "ACC-TUB", "n": "Boîte de tubes", "s": "", "c": "Accessoires", "l": [[1,35],[2,67]], "i": "tabac.jpg"},
 {"r": "VET-VES", "v": "video-veste.mp4", "n": "Veste Frozen Blocks", "s": "La veste maison", "c": "Vêtements", "l": [[1,80],[2,160],[3,240],[5,400],[10,800]], "i": null},
 {"r": "VET-CAS", "v": "video-casquette.mp4", "n": "Casquette Frozen Blocks", "s": "", "c": "Vêtements", "l": [], "i": null}
 ];
