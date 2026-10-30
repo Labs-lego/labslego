@@ -1,0 +1,16 @@
+PHOTOS FROZENBLOCKS — MISE À JOUR
+
+Déjà intégrées dans ce dossier :
+- photos/boite-tubes.jpg : nouvelle photo fournie de la Boîte de tubes News.
+- photos/bic.PNG : image BIC originale conservée.
+- photos/briquet-bic.jpg : copie convertie pour le chemin standard.
+
+Le fichier app.js utilise photos/boite-tubes.jpg pour la Boîte de tubes.
+Les visuels suivants ne sont pas fournis dans cette mise à jour et devront être ajoutés si le code les utilise :
+- photos/accessoires.jpg
+- photos/feuilles.jpg
+- photos/chips.jpg
+- photos/canettes.jpg
+- photos/vetements.jpg
+
+Les vidéos absentes ne sont pas inventées. Si video-boite-tubes.mp4 est référencée dans app.js, ajoute cette vidéo à la racine du dépôt GitHub.
