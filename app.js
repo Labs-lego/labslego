@@ -7,9 +7,8 @@ function label(){b.textContent=(a.paused||a.muted)?"🔇":"🎵";}
 function go(){var p;try{p=a.play()}catch(e){}if(p&&p.then)p.then(label).catch(function(){})}
 function arm(){evs.forEach(function(v){document.addEventListener(v,tap,true)})}
 function disarm(){evs.forEach(function(v){document.removeEventListener(v,tap,true)})}
-function tap(e){if(e.target&&e.target.closest&&e.target.closest("#music-toggle,#music-forward"))return;if(off)return;a.muted=false;go();label()}
+function tap(e){if(e.target&&e.target.closest&&e.target.closest("#music-toggle"))return;if(off)return;a.muted=false;go();label()}
 b.addEventListener("click",function(){if(!a.paused&&!a.muted){off=true;a.pause()}else{off=false;a.muted=false;go()}label()});
-var f=document.getElementById("music-forward");if(f)f.addEventListener("click",function(){try{var next=a.currentTime+15;a.currentTime=(isFinite(a.duration)&&a.duration>0)?next%a.duration:next;}catch(e){}});
 a.addEventListener("playing",function(){if(!a.muted)disarm();label()});
 a.addEventListener("play",label);a.addEventListener("pause",label);
 arm();
