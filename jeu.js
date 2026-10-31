@@ -7,7 +7,7 @@ var C=(typeof CONTACT!=="undefined")?CONTACT:"Frozen_blokcNormandy16";
 var LB_URL="https://frozenblocks-arcade-default-rtdb.europe-west1.firebasedatabase.app";
 var SHOPS=["shop1.jpg","shop2.jpg","shop3.jpg","shop4.jpg"];
 var SALT="fb-lisieux-7";
-var fab=document.createElement("button");fab.id="gfab";fab.textContent="‼️🎮‼️";
+var fab=document.createElement("button");fab.id="gfab";fab.textContent="🕹️ Arcade";
 var ov=document.createElement("div");ov.id="gov";
 var host=document.createElement("div");host.id="jeu";
 var cl=document.createElement("button");cl.id="gcl";cl.textContent="✕";cl.setAttribute("aria-label","Fermer");
@@ -605,7 +605,7 @@ function loop(ts){
 // ---------- Roue de la fortune (1 tour toutes les 25 h) ----------
 var WP=[{t:"🥶 Perdu",c:"#24356b",w:29},{t:"🔥 Un BIC",c:"#2b7be0",w:6,v:1,img:"bic"},{t:"❄️ -10 %",c:"#4db3ff",w:16,v:1},{t:"🥶 Perdu",c:"#1b2a5c",w:29},{t:"📦 Paquet OCB",c:"#1f5fc0",w:10,v:1,img:"bob"},{t:"💎 1 € de réduc",c:"#6fb7f0",w:10,v:1,img:["-1€","euro"]}];
 var WN=WP.length,WA=2*Math.PI/WN,WD=25*36e5,wrot=0,wspin=false;
-var wfab=document.createElement("button");wfab.id="wfab";wfab.textContent="‼️🎡‼️";
+var wfab=document.createElement("button");wfab.id="wfab";wfab.textContent="❄️ Roue";
 var wov=document.createElement("div");wov.id="wov";
 wov.innerHTML='<button id="wcl" aria-label="Fermer">✕</button><h2 class="titre">❄️ Roue Glacée</h2><div class="gsub">FROZEN BLOCKS · LISIEUX</div><div class="gm"><p>Fais tourner la roue givrée : 1 tour toutes les 25 h !</p><canvas id="wc" width="300" height="320" style="width:100%;max-width:300px;display:block;margin:0 auto 12px;transform:perspective(650px) rotateX(24deg);filter:drop-shadow(0 0 14px rgba(58,160,255,.55))"></canvas><button id="wgo">🎡 Tourner la roue</button><div id="wres"></div></div>';
 document.body.appendChild(wfab);document.body.appendChild(wov);
