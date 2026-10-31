@@ -1,0 +1,10 @@
+FROZENBLOCKS — DOSSIER CODE LÉGER
+
+Fichiers inclus :
+- index.html : page principale
+- app.js : logique de la boutique
+- jeu.js : arcade
+
+Les fichiers audio, photos et vidéos ne sont pas inclus pour garder l'archive légère.
+Les médias déjà présents dans ton dépôt GitHub doivent rester en place.
+Place les trois fichiers à la racine du dépôt, sans changer leurs noms.
